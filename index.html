@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Westchester Transit Connection - Prototyping Portal</title>
+    <!-- Progressive Web App Metadata -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#008080">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Chart.js CDN for Interactive Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --heading-color: #1a2530;
+            --body-color: #333d47;
+            --accent-teal: #008080;
+            --accent-mint: #e6f2f2;
+            --accent-crimson: #d9534f;
+            --accent-slate: #eceeef;
+            --hudson-green: #2ca02c;
+            --harlem-blue: #1f77b4;
+            --beeline-red: #d9534f; /* Westchester Bee-Line Crimson */
+            --border-radius: 12px;
+            --transition-speed: 0.2s;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f4f6f8;
+            color: var(--body-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            width: 100%;
+            max-width: 1200px;
+            background-color: var(--heading-color);
+            color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        .hud-points {
+            background-color: var(--accent-teal);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s ease;
+        }
+
+        .hud-badge {
+            background-color: #f0ad4e;
+            color: black;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: var(--heading-color);
+            border-bottom: 3px solid var(--accent-teal);
+            padding-bottom: 8px;
+            font-size: 1.4em;
+        }
+
+        .mission-box {
+            background-color: #fbfcfc;
+            border-left: 5px solid var(--accent-teal);
+            padding: 15px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            margin-bottom: 15px;
+            min-height: 80px;
+        }
+
+        button {
+            background-color: var(--accent-teal);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background var(--transition-speed), transform 0.1s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background-color: #006666;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button.danger {
+            background-color: var(--accent-crimson);
+        }
+
+        button.danger:hover {
+            background-color: #b52b27;
+        }
+
+        button.warning {
+            background-color: #f0ad4e;
+            color: black;
+        }
+
+        .line-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .tab-btn {
+            padding: 10px;
+            font-weight: bold;
+            border-radius: 8px;
+            border: 2px solid var(--accent-slate);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .tab-btn.active-hudson {
+            background-color: var(--hudson-green);
+            color: white;
+            border-color: var(--hudson-green);
+        }
+
+        .tab-btn.active-harlem {
+            background-color: var(--harlem-blue);
+            color: white;
+            border-color: var(--harlem-blue);
+        }
+
+        .tab-btn.active-beeline {
+            background-color: var(--beeline-red);
+            color: white;
+            border-color: var(--beeline-red);
+        }
+
+        .table-wrapper {
+            position: relative;
+            overflow-x: auto;
+            border: 2px solid var(--accent-slate);
+            border-radius: 8px;
+            height: 380px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+            background: white;
+            text-align: center;
+        }
+
+        th {
+            background-color: var(--heading-color);
+            color: white;
+            padding: 12px;
+            font-weight: bold;
+        }
+
+        td {
+            padding: 13px;
+            border-bottom: 1px solid var(--accent-slate);
+            font-weight: 500;
+        }
+
+        .slider-overlay {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 46px;
+            background-color: rgba(0, 128, 128, 0.12);
+            border-top: 3px solid var(--accent-teal);
+            border-bottom: 3px solid var(--accent-teal);
+            pointer-events: none;
+            transition: top 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-sizing: border-box;
+            z-index: 10;
+            opacity: 0;
+        }
+
+        tr {
+            cursor: pointer;
+            transition: opacity var(--transition-speed), filter var(--transition-speed);
+        }
+
+        .blur-rows tr:not(.active-row):not(:first-child) {
+            opacity: 0.25;
+            filter: blur(1.2px);
+        }
+
+        .intervention-alert {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .breathing-box {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--accent-mint);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .breathing-circle {
+            width: 80px;
+            height: 80px;
+            background-color: var(--accent-teal);
+            border-radius: 50%;
+            margin: 20px 0;
+            animation: breathe 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes breathe {
+            0% { transform: scale(0.6); opacity: 0.6; }
+            100% { transform: scale(1.2); opacity: 1; }
+        }
+
+        .active-mission-label {
+            font-weight: bold;
+            color: var(--accent-teal);
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+
+        .prompt-label {
+            display: block;
+            margin: 10px 0 5px 0;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 2px solid var(--accent-slate);
+            margin-bottom: 12px;
+            font-size: 1em;
+        }
+
+        .validation-box {
+            margin-top: 15px;
+            background-color: var(--accent-mint);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        .badge-cabinet {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .badge-item {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.8em;
+            opacity: 0.4;
+            transition: all 0.3s;
+            background-color: #fafafa;
+        }
+
+        .badge-item.unlocked {
+            border-style: solid;
+            border-color: #f0ad4e;
+            opacity: 1;
+            background-color: #fffdf5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(240, 173, 78, 0.15);
+        }
+
+        .badge-icon {
+            font-size: 1.8em;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .map-visualizer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            background: #fafbfc;
+            border: 2px solid var(--accent-slate);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            height: 40px;
+        }
+
+        .map-track {
+            position: absolute;
+            left: 20px;
+            right: 20px;
+            height: 6px;
+            background-color: #ccc;
+            z-index: 1;
+        }
+
+        .map-track.hudson {
+            background-color: var(--hudson-green);
+        }
+
+        .map-track.harlem {
+            background-color: var(--harlem-blue);
+        }
+
+        .map-track.beeline {
+            background-color: var(--beeline-red);
+        }
+
+        .map-node {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: white;
+            border: 3px solid #999;
+            z-index: 2;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .map-node.active-node {
+            transform: scale(1.3);
+            background-color: gold;
+            border-color: var(--heading-color);
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+        }
+
+        .map-node::after {
+            content: attr(data-label);
+            position: absolute;
+            top: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75em;
+            font-weight: bold;
+            white-space: nowrap;
+            color: var(--body-color);
+        }
+
+        /* --- Video Modal Overlay --- */
+        .video-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000; /* Ensure it stays completely above the timetable and dashboard */
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .video-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .video-modal-card {
+            background-color: white;
+            width: 95%;
+            max-width: 850px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .video-modal-overlay.active .video-modal-card {
+            transform: scale(1);
+        }
+
+        .video-modal-header {
+            background-color: var(--heading-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .video-modal-title {
+            margin: 0;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .video-modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 0;
+            width: auto;
+            margin: 0;
+        }
+
+        .video-modal-close:hover {
+            color: var(--accent-crimson);
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9; /* Forces high-definition video scaling */
+            background-color: black;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+        }
+
+        /* --- Interactive Video Checklist Overlay --- */
+        .video-overlay-checklist {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 300px;
+            background-color: rgba(26, 37, 48, 0.95); /* High-contrast matching --heading-color */
+            border: 2px solid var(--accent-teal);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            z-index: 10;
+            color: white;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        .checklist-title {
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+            color: #f0ad4e; /* Highlight gold */
+            text-transform: uppercase;
+            letter-spacing: 0.75px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 0.85em;
+            opacity: 0.35; /* Blurs out inactive future steps to reduce cognitive load */
+            transition: all 0.3s ease;
+            line-height: 1.3;
+        }
+
+        .checklist-item.active {
+            opacity: 1;
+            transform: scale(1.02);
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .checklist-item.completed {
+            opacity: 0.8;
+            color: #5cb85c; /* Clinical success green */
+            text-decoration: line-through;
+        }
+
+        .checklist-checkbox {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            background-color: white;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .checklist-checkbox:disabled {
+            cursor: not-allowed;
+            background-color: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .checklist-checkbox:checked {
+            background-color: #5cb85c;
+            border-color: #5cb85c;
+        }
+
+        .checklist-checkbox:checked::after {
+            content: "✓";
+            position: absolute;
+            top: -3px;
+            left: 2px;
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+        }
+    
+        /* --- Fallback Video Visualizer for Offline / Missing MP4s --- */
+        .fallback-visualizer {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a2530 0%, #0d131a 100%);
+            color: white;
+            text-align: center;
+            padding: 30px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .fallback-icon {
+            font-size: 3.2em;
+            margin-bottom: 10px;
+            animation: pulse-icon 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse-icon {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            100% { transform: scale(1.1); opacity: 1; filter: drop-shadow(0 0 12px #f0ad4e); }
+        }
+
+        .soundwave-pulse {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin: 15px 0;
+            height: 35px;
+        }
+
+        .soundwave-bar {
+            width: 6px;
+            height: 100%;
+            background: var(--accent-teal);
+            border-radius: 3px;
+            animation: soundwave 0.8s ease-in-out infinite alternate;
+        }
+
+        .soundwave-bar:nth-child(2) { animation-delay: 0.15s; background: #f0ad4e; }
+        .soundwave-bar:nth-child(3) { animation-delay: 0.3s; background: var(--accent-crimson); }
+        .soundwave-bar:nth-child(4) { animation-delay: 0.45s; background: #f0ad4e; }
+        .soundwave-bar:nth-child(5) { animation-delay: 0.6s; background: var(--accent-teal); }
+
+        @keyframes soundwave {
+            0% { height: 20%; }
+            100% { height: 100%; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h1 style="margin: 0; font-size: 1.6em;">Westchester Transit Connection</h1>
+            <span style="font-size: 0.9em; opacity: 0.85;">PWA Adaptive Training Suite</span>
+        </div>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div class="hud-badge" id="conductor-badge">Conductor: Calm</div>
+            <div class="hud-points" id="points-display">
+                <span>🎒 Points:</span>
+                <span id="score-val">100</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Left: Control Column -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="card">
+                <h2>1. Travel Mission</h2>
+                <div class="mission-box" id="mission-text">
+                    <p style="color: gray; margin: 0;">Click below to draw a transit scenario...</p>
+                </div>
+                <button onclick="drawMission()">Draw Travel Mission Card</button>
+            </div>
+
+            <div class="card">
+                <h2>2. Query Validation</h2>
+                
+                <label class="prompt-label" for="origin-select">Step 1: Select Starting Station</label>
+                <select id="origin-select" onchange="updateQuery()">
+                    <option value="">-- Choose Origin --</option>
+                </select>
+
+                <label class="prompt-label" for="time-select">Step 2: Identify Chronologically Next Time Column</label>
+                <select id="time-select" onchange="updateQuery()" disabled>
+                    <option value="">-- Click on timetable row first --</option>
+                    <option value="col-1">Bus/Train 1 (Morning)</option>
+                    <option value="col-2">Bus/Train 2 (Midday)</option>
+                    <option value="col-3">Bus/Train 3 (Afternoon)</option>
+                </select>
+
+                <button id="validate-btn" onclick="validateTicket()" disabled>Validate Ticket & Ride</button>
+
+                <div class="validation-box" id="success-box">
+                    <strong style="color: var(--accent-teal); display:block; margin-bottom:5px;">🎟️ Ticket Confirmed!</strong>
+                    <span id="success-message">Great job reading the matrix!</span>
+                </div>
+            </div>
+
+            <div class="card" style="border: 3px solid var(--accent-crimson);">
+                <h2 style="color: var(--accent-crimson); border-bottom-color: var(--accent-crimson);">3. Angela's Conductor Panel</h2>
+                <p style="font-size: 0.9em; margin-top:0;">Enforce physical and behavioral boundaries neutrally:</p>
+                <button class="warning" onclick="triggerDelay()">Simulate Sensory Load (Delay)</button>
+                <button class="danger" id="outburst-btn" onclick="toggleOutburst()">Trigger Unexpected Outburst</button>
+                <button class="warning" style="background-color: #fd7e14; color: white; margin-top: 6px;" onclick="triggerTrainStuckPlanB()">🚨 Train Stuck: Activate Plan B Reroute</button>
+                
+                <div class="intervention-alert" id="intervention-msg"></div>
+
+                <div class="breathing-box" id="breathing-spacer">
+                    <strong style="color: var(--accent-teal);">Quiet Waiting: Calm Breathing Box</strong>
+                    <p style="font-size: 0.85em; margin: 5px 0 0 0;">Wait and breathe in sync with the circle. The timetable will unlock when safe.</p>
+                    <div class="breathing-circle"></div>
+                    <button class="warning" style="width: auto; padding: 6px 15px; font-size: 0.8em;" onclick="endOutburst()">Platform Clear / Resume Game</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Interactive Map & Grid Column -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="card" style="position: relative;">
+                <h2>Tactile Slider Timetable</h2>
+                
+                <div class="line-tabs">
+                    <div class="tab-btn active-hudson" id="tab-hudson" onclick="switchLine('Hudson')">Hudson Line (Green)</div>
+                    <div class="tab-btn" id="tab-harlem" onclick="switchLine('Harlem')">Harlem Line (Blue)</div>
+                    <div class="tab-btn" id="tab-beeline" onclick="switchLine('BeeLine')">Bee-Line Bus (Red)</div>
+                </div>
+
+                <p style="font-size: 0.9em; color: gray; margin-top:-5px;">Click on any station row below to align the sliding isolation sleeve and block visual noise.</p>
+                
+                <div class="table-wrapper">
+                    <div class="slider-overlay" id="sleeve"></div>
+                    <table id="timetable">
+                        <thead>
+                            <tr>
+                                <th>Station</th>
+                                <th>Route 1</th>
+                                <th>Route 2</th>
+                                <th>Route 3</th>
+                            </tr>
+                        </thead>
+                        <tbody id="timetable-body">
+                            <!-- Populated Dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="map-visualizer">
+                    <div class="map-track hudson" id="map-track-line"></div>
+                    <div style="display:flex; justify-content:space-between; width:100%; position:relative; z-index:2;" id="map-nodes-container">
+                        <!-- Populated Dynamically -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Coping Tool Cabinet & Badge Showcase</h2>
+                <p style="font-size: 0.9em; color: gray; margin-top:-5px;">Accumulate travel points and practice coping strategies to unlock Janice's badges!</p>
+                <div class="badge-cabinet">
+                    <div class="badge-item" id="badge-somatic">
+                        <span class="badge-icon">🧘</span>
+                        <strong>Somatic Champion</strong>
+                        <div style="font-size:0.85em; color:gray; margin-top:3px;">Use breathing exercises.</div>
+                    </div>
+                    <div class="badge-item" id="badge-advocacy">
+                        <span class="badge-icon">🎧</span>
+                        <strong>Noise Dampener</strong>
+                        <div style="font-size:0.85em; color:gray; margin-top:3px;">Put on headphones during screech.</div>
+                    </div>
+                    <div class="badge-item" id="badge-conductor">
+                        <span class="badge-icon">🎟️</span>
+                        <strong>Master Rider</strong>
+                        <div style="font-size:0.85em; color:gray; margin-top:3px;">Validate 3 correct tickets.</div>
+                    </div>
+                    <div class="badge-item" id="badge-pivot">
+                        <span class="badge-icon">🚌</span>
+                        <strong>Pivot Master</strong>
+                        <div style="font-size:0.85em; color:gray; margin-top:3px;">Execute Plan B / ParaTransit.</div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button onclick="exportSessionLogsToCSV()" style="background-color: var(--heading-color); margin-bottom: 0;">
+                        📥 Download Clinical CSV Database
+                    </button>
+                    <button onclick="injectMockTransitLogs()" style="background-color: #6c757d; margin-bottom: 0;">
+                        🧪 Inject Demo Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Live Clinical Analytics Dashboard -->
+            <div class="card">
+                <h2>4. Session Progress & Behavioral Dashboard</h2>
+                <p style="font-size: 0.9em; color: gray; margin-top:-5px;">Real-time quantitative telemetry generated directly from Janice's offline browser database.</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 15px; margin-top: 15px;">
+                    <div style="border: 1px solid var(--accent-slate); border-radius: 8px; padding: 12px; text-align: center;">
+                        <strong style="color: var(--accent-teal); font-size: 0.9em; display: block; margin-bottom: 10px;">Travel Mission Success Rate</strong>
+                        <div style="position: relative; height: 180px; display: flex; align-items: center; justify-content: center;">
+                            <canvas id="successChart"></canvas>
+                            <div id="no-chart-fallback" style="display: none; font-size: 0.85em; color: gray;">
+                                Offline Fallback: <br>
+                                <strong id="completed-count-lbl" style="color: var(--accent-teal);">0</strong> Successes / 
+                                <strong id="aborted-count-lbl" style="color: var(--accent-crimson);">0</strong> Aborts
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="border: 1px solid var(--accent-slate); border-radius: 8px; padding: 12px;">
+                        <strong style="color: var(--accent-crimson); font-size: 0.9em; display: block; margin-bottom: 10px; text-align: center;">De-escalation Time Trend (Seconds)</strong>
+                        <div style="position: relative; height: 180px;">
+                            <canvas id="durationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+            <!-- Interactive Westchester Route Map Section -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <h2>🗺️ Interactive Westchester Route Map</h2>
+                <p style="font-size:0.9em; color:gray; margin-top:-5px;">Select a station or click a pin below to view the location on the Metro-North & Bee-Line network.</p>
+                <div class="map-wrapper" style="position: relative; width: 100%; max-width: 1100px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 2px solid var(--accent-slate);">
+                    <img src="gallery/map with stations copy.jpg" id="transit-map" alt="Westchester Transit Map" style="width: 100%; display: block;">
+
+                    <!-- Station Hotspot Pins -->
+                    <div class="station-pin" style="position:absolute; top:75%; left:25%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Yonkers')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Yonkers</span></div>
+                    <div class="station-pin" style="position:absolute; top:62%; left:26%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Hastings')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Hastings</span></div>
+                    <div class="station-pin" style="position:absolute; top:52%; left:27%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Dobbs Ferry')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Dobbs Ferry</span></div>
+                    <div class="station-pin" style="position:absolute; top:45%; left:28%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Irvington')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Irvington</span></div>
+                    <div class="station-pin" style="position:absolute; top:32%; left:30%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Tarrytown')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Tarrytown</span></div>
+                    <div class="station-pin" style="position:absolute; top:40%; left:55%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('White Plains')"><span class="pin-label" style="background:#1f77b4; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">White Plains</span></div>
+
+                    <!-- Active Moving Vehicle Token -->
+                    <img src="gallery/wtc_train_green.png" id="active-vehicle-token" alt="Train Token" style="position:absolute; top:45%; left:28%; width:52px; height:52px; transform:translate(-50%,-100%); transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); z-index:10;">
+                </div>
+            </div>
+
+    </div>
+
+    <!-- Video Modeling Modal with Interactive Clinical Checklist -->
+    <div class="video-modal-overlay" id="video-modal">
+        <div class="video-modal-card">
+            <div class="video-modal-header">
+                <h3 class="video-modal-title" id="video-modal-title">Transit Modeling: Train Movement</h3>
+                <button class="video-modal-close" onclick="closeVideoModal()">✕</button>
+            </div>
+            <div class="video-container">
+                
+                <!-- Dynamic Safety Checklist Box -->
+                <div class="video-overlay-checklist" id="video-checklist-box" style="display: none;">
+                    <h4 class="checklist-title">
+                        <span>📋 Platform Steps</span>
+                        <span id="checklist-progress" style="font-size: 0.85em; color: gray;">0/3</span>
+                    </h4>
+                    <div id="checklist-items-container">
+                        <!-- Populated dynamically based on loaded video -->
+                    </div>
+                </div>
+
+                <!-- Interactive Fallback Card when MP4 video file is missing -->
+                <div id="video-fallback-card" class="fallback-visualizer" style="display: none;">
+                    <div class="fallback-icon" id="fallback-icon-display">🚂</div>
+                    <h3 style="margin: 0; color: #f0ad4e; font-size: 1.3em;" id="fallback-status-title">Interactive Transit Simulation</h3>
+                    <p style="margin: 8px 0 0 0; font-size: 0.95em; color: #ccc;" id="fallback-status-desc">Rehearsing platform safety routine...</p>
+                    
+                    <div class="soundwave-pulse" id="fallback-soundwaves">
+                        <div class="soundwave-bar"></div>
+                        <div class="soundwave-bar"></div>
+                        <div class="soundwave-bar"></div>
+                        <div class="soundwave-bar"></div>
+                        <div class="soundwave-bar"></div>
+                    </div>
+
+                    <span style="font-size: 0.85em; color: var(--accent-mint); background: rgba(0,128,128,0.2); padding: 4px 12px; border-radius: 12px; border: 1px solid var(--accent-teal);">
+                        ⚡ Audio Synthesizer Active • Practice Steps on Right
+                    </span>
+                </div>
+
+                <video id="modal-video-player" playsinline style="display: block;">
+                    <source id="video-source" src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registered successfully!', reg.scope))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        }
+
+        // System Data
+        const routes = {
+            Hudson: {
+                colorClass: "active-hudson",
+                borderCol: "var(--hudson-green)",
+                stops: ["Yonkers", "Hastings", "Dobbs Ferry", "Irvington", "Tarrytown", "Peekskill"],
+                schedule: [
+                    { station: "Yonkers", col1: "8:15 AM", col2: "11:45 AM", col3: "3:15 PM" },
+                    { station: "Hastings", col1: "8:30 AM", col2: "12:00 PM", col3: "3:30 PM" },
+                    { station: "Dobbs Ferry", col1: "8:45 AM", col2: "12:15 PM", col3: "3:45 PM" },
+                    { station: "Irvington", col1: "9:00 AM", col2: "12:30 PM", col3: "4:00 PM" },
+                    { station: "Tarrytown", col1: "9:15 AM", col2: "12:45 PM", col3: "4:15 PM" },
+                    { station: "Peekskill", col1: "9:45 AM", col2: "1:15 PM", col3: "4:45 PM" }
+                ]
+            },
+            Harlem: {
+                colorClass: "active-harlem",
+                borderCol: "var(--harlem-blue)",
+                stops: ["Mt. Vernon", "Scarsdale", "White Plains", "Mt. Kisco"],
+                schedule: [
+                    { station: "Mt. Vernon", col1: "8:10 AM", col2: "11:40 AM", col3: "3:10 PM" },
+                    { station: "Scarsdale", col1: "8:25 AM", col2: "11:55 AM", col3: "3:25 PM" },
+                    { station: "White Plains", col1: "8:40 AM", col2: "12:10 PM", col3: "3:40 PM" },
+                    { station: "Mt. Kisco", col1: "9:05 AM", col2: "12:35 PM", col3: "4:05 PM" }
+                ]
+            },
+            BeeLine: {
+                colorClass: "active-beeline",
+                borderCol: "var(--beeline-red)",
+                stops: ["Dobbs Ferry Bus", "Irvington Bus", "White Plains Hub", "Library", "Movie Theater"],
+                schedule: [
+                    { station: "Dobbs Ferry Bus", col1: "8:45 AM", col2: "12:15 PM", col3: "3:45 PM" },
+                    { station: "Irvington Bus", col1: "9:00 AM", col2: "12:30 PM", col3: "4:00 PM" },
+                    { station: "White Plains Hub", col1: "9:30 AM", col2: "1:00 PM", col3: "4:30 PM" },
+                    { station: "Library", col1: "9:45 AM", col2: "1:15 PM", col3: "4:45 PM" },
+                    { station: "Movie Theater", col1: "10:00 AM", col2: "1:30 PM", col3: "5:00 PM" }
+                ]
+            }
+        };
+
+        const missions = [
+            { id: "WTC-MIS-001", line: "Hudson", station: "Irvington", targetTime: "12:00 PM", text: "Take the afternoon train from Irvington station. Find the next departure after 12:00 PM.", timeColVal: "col-2", displayTime: "12:30 PM" },
+            { id: "WTC-MIS-002", line: "Hudson", station: "Yonkers", targetTime: "2:00 PM", text: "You have a late lunch planned. Depart Yonkers using the next train after 2:00 PM.", timeColVal: "col-3", displayTime: "3:15 PM" },
+            { id: "WTC-MIS-003", line: "Hudson", station: "Dobbs Ferry", targetTime: "8:00 AM", text: "Depart Dobbs Ferry on the next morning train after 8:00 AM.", timeColVal: "col-1", displayTime: "8:45 AM" },
+            { id: "WTC-MIS-004", line: "Hudson", station: "Tarrytown", targetTime: "3:00 PM", text: "Head home from Tarrytown. Find the next train departure after 3:00 PM.", timeColVal: "col-3", displayTime: "4:15 PM" },
+            { id: "WTC-MIS-005", line: "Harlem", station: "White Plains", targetTime: "8:00 AM", text: "You are starting your day in White Plains. Catch the first morning train after 8:00 AM.", timeColVal: "col-1", displayTime: "8:40 AM" },
+            { id: "WTC-MIS-006", line: "Harlem", station: "Scarsdale", targetTime: "11:30 AM", text: "Depart Scarsdale for a midday trip. Locate the next departure after 11:30 AM.", timeColVal: "col-2", displayTime: "11:55 AM" },
+            { id: "WTC-MIS-007", line: "Harlem", station: "Mt. Kisco", targetTime: "3:00 PM", text: "Head south from Mt. Kisco in the afternoon. Locate the next train after 3:00 PM.", timeColVal: "col-3", displayTime: "4:05 PM" },
+            { id: "WTC-MIS-008", line: "BeeLine", station: "Irvington Bus", targetTime: "11:30 AM", text: "Take the midday Bee-Line Bus Route 6 from Irvington Station to the White Plains Hub.", timeColVal: "col-2", displayTime: "12:30 PM" },
+            { id: "WTC-MIS-009", line: "BeeLine", station: "Dobbs Ferry Bus", targetTime: "3:00 PM", text: "Hop on the afternoon bus from Dobbs Ferry to go to the Movie Theater.", timeColVal: "col-3", displayTime: "3:45 PM" },
+            { id: "WTC-MIS-010", line: "BeeLine", station: "White Plains Hub", targetTime: "8:00 AM", text: "Take the morning connection from the White Plains Hub to go to the Library.", timeColVal: "col-1", displayTime: "9:30 AM" }
+        ];
+
+        // Game State Variables
+        let currentLine = "Hudson";
+        let score = 100;
+        let activeMission = null;
+        let selectedStation = "";
+        let selectedTime = "";
+        let audioContext = null;
+        let correctTicketsValidated = 0;
+
+        // Clinical Behavior Tracking State
+        let currentSessionBehavior = {
+            outburstOccurred: false,
+            startTime: null,
+            totalDurationSec: 0,
+            copingUsed: []
+        };
+
+        // Charts Instances
+        let successChartInstance = null;
+        let durationChartInstance = null;
+
+        // Sound Engine (Web Audio API)
+        function playWhistle(frequency, duration) {
+            try {
+                if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                let osc = audioContext.createOscillator();
+                let gain = audioContext.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                
+                gain.gain.setValueAtTime(0.12, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                osc.start();
+                osc.stop(audioContext.currentTime + duration);
+            } catch(e) {
+                console.log("Audio API blocked or unsupported.");
+            }
+        }
+
+        // Initialize App on Load
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedScore = localStorage.getItem("wtc_current_score");
+            if (savedScore !== null) {
+                score = parseInt(savedScore, 10);
+                document.getElementById("score-val").textContent = score;
+            }
+            
+            if (!localStorage.getItem("wtc_session_history")) {
+                localStorage.setItem("wtc_session_history", JSON.stringify([]));
+            }
+
+            renderTimetable();
+            populateOriginDropdown();
+            
+            const token = document.getElementById("active-vehicle-token");
+            if (token) {
+                if (lineName === "Hudson") token.src = "gallery/wtc_train_green.png";
+                else if (lineName === "Harlem") token.src = "gallery/wtc_train_blue.png";
+                else if (lineName === "BeeLine") token.src = "gallery/wtc_bus_red.png";
+            }
+            updateDashboardCharts();
+        });
+
+        // Render Timetable Grid dynamically based on selected line
+        function renderTimetable() {
+            const tbody = document.getElementById("timetable-body");
+            tbody.innerHTML = "";
+            const currentRoute = routes[currentLine];
+
+            currentRoute.schedule.forEach(row => {
+                const tr = document.createElement("tr");
+                tr.id = `row-${row.station.replace(/\s+/g, '')}`;
+                tr.onclick = function() { moveSleeve(tr, row.station); };
+
+                tr.innerHTML = `
+                    <td style="text-align: left; font-weight: bold; border-left: 5px solid ${currentRoute.borderCol};">${row.station}</td>
+                    <td>${row.col1}</td>
+                    <td>${row.col2}</td>
+                    <td>${row.col3}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const trackLine = document.getElementById("map-track-line");
+            trackLine.className = `map-track ${currentLine.toLowerCase()}`;
+
+            const nodeContainer = document.getElementById("map-nodes-container");
+            nodeContainer.innerHTML = "";
+            currentRoute.stops.forEach(stop => {
+                const node = document.createElement("div");
+                node.className = "map-node";
+                node.id = `node-${stop.replace(/\s+/g, '')}`;
+                node.setAttribute("data-label", stop);
+                nodeContainer.appendChild(node);
+            });
+
+            const overlay = document.getElementById("sleeve");
+            overlay.style.opacity = "0";
+            document.getElementById("timetable").classList.remove("blur-rows");
+        }
+
+        function populateOriginDropdown() {
+            const dropdown = document.getElementById("origin-select");
+            dropdown.innerHTML = '<option value="">-- Choose Origin --</option>';
+            routes[currentLine].stops.forEach(stop => {
+                const opt = document.createElement("option");
+                opt.value = stop;
+                opt.textContent = stop;
+                dropdown.appendChild(opt);
+            });
+        }
+
+        function switchLine(lineName) {
+            currentLine = lineName;
+            
+            const tabHudson = document.getElementById("tab-hudson");
+            const tabHarlem = document.getElementById("tab-harlem");
+            const tabBeeline = document.getElementById("tab-beeline");
+
+            // Reset tabs
+            tabHudson.className = "tab-btn";
+            tabHarlem.className = "tab-btn";
+            tabBeeline.className = "tab-btn";
+
+            if (lineName === "Hudson") {
+                tabHudson.className = "tab-btn active-hudson";
+            } else if (lineName === "Harlem") {
+                tabHarlem.className = "tab-btn active-harlem";
+            } else if (lineName === "BeeLine") {
+                tabBeeline.className = "tab-btn active-beeline";
+            }
+
+            renderTimetable();
+            populateOriginDropdown();
+            
+            const token = document.getElementById("active-vehicle-token");
+            if (token) {
+                if (lineName === "Hudson") token.src = "gallery/wtc_train_green.png";
+                else if (lineName === "Harlem") token.src = "gallery/wtc_train_blue.png";
+                else if (lineName === "BeeLine") token.src = "gallery/wtc_bus_red.png";
+            }
+            
+            document.getElementById("time-select").value = "";
+            document.getElementById("time-select").disabled = true;
+            document.getElementById("validate-btn").disabled = true;
+            document.getElementById("success-box").style.display = "none";
+        }
+
+        // Draw Travel Mission Card
+        function drawMission() {
+            activeMission = missions[Math.floor(Math.random() * missions.length)];
+            const textEl = document.getElementById("mission-text");
+            textEl.innerHTML = `
+                <span class="active-mission-label">${activeMission.id}</span>
+                <p style="margin: 5px 0; font-weight: bold;">${activeMission.text}</p>
+                <span style="font-size: 0.85em; color: gray;">Target Query: Origin = ${activeMission.station} | Depart After: ${activeMission.targetTime} (${activeMission.line === 'BeeLine' ? 'Bee-Line Bus' : activeMission.line + ' Line'})</span>
+            `;
+
+            if (activeMission.line !== currentLine) {
+                switchLine(activeMission.line);
+            }
+
+            document.getElementById("origin-select").value = "";
+            document.getElementById("time-select").value = "";
+            document.getElementById("time-select").disabled = true;
+            document.getElementById("validate-btn").disabled = true;
+            document.getElementById("success-box").style.display = "none";
+            
+            const activeNode = document.querySelector(".active-node");
+            if (activeNode) activeNode.classList.remove("active-node");
+        }
+
+        // Dynamic Timetable Slider Alignment
+        function moveSleeve(rowElement, stationName) {
+            const table = document.getElementById("timetable");
+            const overlay = document.getElementById("sleeve");
+            
+            const activeRow = document.querySelector(".active-row");
+            if (activeRow) activeRow.classList.remove("active-row");
+
+            table.classList.add("blur-rows");
+            rowElement.classList.add("active-row");
+
+            const rowTop = rowElement.offsetTop;
+            overlay.style.top = rowTop + "px";
+            overlay.style.opacity = "1";
+
+            selectedStation = stationName;
+            document.getElementById("origin-select").value = stationName;
+            
+            const activeNode = document.querySelector(".active-node");
+            if (activeNode) activeNode.classList.remove("active-node");
+            const targetNode = document.getElementById(`node-${stationName.replace(/\s+/g, '')}`);
+            if (targetNode) targetNode.classList.add("active-node");
+
+            const timeSelect = document.getElementById("time-select");
+            timeSelect.disabled = false;
+            
+            updateQuery();
+            syncMapVehicleToken(stationName);
+            playWhistle(300, 0.08);
+        }
+
+        // Query Alignment
+        function updateQuery() {
+            selectedStation = document.getElementById("origin-select").value;
+            selectedTime = document.getElementById("time-select").value;
+
+            if(selectedStation) {
+                const targetRowId = "row-" + selectedStation.replace(/\s+/g, '');
+                const targetRow = document.getElementById(targetRowId);
+                if (targetRow && !targetRow.classList.contains("active-row")) {
+                    moveSleeve(targetRow, selectedStation);
+                }
+            }
+
+            const validateBtn = document.getElementById("validate-btn");
+            if (selectedStation && selectedTime && activeMission) {
+                validateBtn.disabled = false;
+            } else {
+                validateBtn.disabled = true;
+            }
+        }
+
+        // Ticket Validation
+        function validateTicket() {
+            if (!activeMission) return;
+
+            const isCorrectStation = (selectedStation === activeMission.station);
+            const isCorrectTime = (selectedTime === activeMission.timeColVal);
+
+            const successBox = document.getElementById("success-box");
+            const messageEl = document.getElementById("success-message");
+
+            successBox.style.display = "block";
+
+            if (isCorrectStation && isCorrectTime) {
+                messageEl.style.color = "var(--accent-teal)";
+                messageEl.innerHTML = `Successfully validated ticket! Janice departs ${activeMission.station} on the <strong>${activeMission.displayTime}</strong> transit run.`;
+                updateScore(50);
+                playWhistle(440, 0.3);
+                setTimeout(() => playWhistle(554, 0.4), 120);
+
+                // ---- TRIGGER VIDEO MODELING CLINICAL TIMELINE ----
+                if (currentLine === "BeeLine") {
+                    // Plays your custom Bee-Line bus simulation clip with active checkpoints
+                    playTransitVideo("beeline_route6_depart.mp4", `Traveling on Bee-Line Bus: ${selectedStation}`);
+                } else {
+                    // Plays your custom Metro-North Train Simulator clip with active checkpoints
+                    playTransitVideo("metro_north_depart.mp4", `Metro-North Departing: ${selectedStation}`);
+                }
+                // --------------------------------------------------
+
+                correctTicketsValidated++;
+                if (correctTicketsValidated >= 3) {
+                    unlockBadge("badge-conductor");
+                }
+                
+                logCurrentSession(true);
+            } else {
+                messageEl.style.color = "var(--accent-crimson)";
+                messageEl.innerHTML = `⚠️ Ticket Invalid. Double check the destination station row or departure timing threshold.`;
+                playWhistle(150, 0.4);
+            }
+        }
+
+        function updateScore(amt) {
+            score += amt;
+            document.getElementById("score-val").textContent = score;
+            localStorage.setItem("wtc_current_score", score);
+            
+            const display = document.getElementById("points-display");
+            display.style.transform = "scale(1.1)";
+            setTimeout(() => display.style.transform = "scale(1.0)", 180);
+        }
+
+        function unlockBadge(badgeId) {
+            const badge = document.getElementById(badgeId);
+            if (badge && !badge.classList.contains("unlocked")) {
+                badge.classList.add("unlocked");
+                playWhistle(523, 0.2);
+                setTimeout(() => playWhistle(659, 0.2), 100);
+                setTimeout(() => playWhistle(784, 0.4), 200);
+            }
+        }
+
+        // Clinical Behavioral Overrides
+        
+        function triggerTrainStuckPlanB() {
+            const msgBox = document.getElementById("intervention-msg");
+            msgBox.style.display = "block";
+            msgBox.style.borderColor = "#fd7e14";
+            msgBox.style.backgroundColor = "#ffe8cc";
+            msgBox.innerHTML = `
+                <strong style="color: #d9480f;">🚨 Major Line Disruption: Train Stuck on Tracks!</strong>
+                <p style="margin: 5px 0 0 0; font-size: 0.9em;">Service suspended at ${selectedStation || 'station'} for 2+ hours. Execute Plan B to reach your destination safely!</p>
+                <div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
+                    <button class="warning" style="width:auto; padding: 6px 12px; font-size:0.85em; background-color:#20c997;" onclick="activatePlanBReroute('bus')">🚌 Switch to Bee-Line Bus (Red Line)</button>
+                    <button class="warning" style="width:auto; padding: 6px 12px; font-size:0.85em; background-color:#6f42c1;" onclick="activatePlanBReroute('paratransit')">🚐 Call Westchester ParaTransit</button>
+                </div>
+            `;
+        }
+
+        function activatePlanBReroute(option) {
+            const msgBox = document.getElementById("intervention-msg");
+            if (option === 'bus') {
+                msgBox.style.borderColor = "#20c997";
+                msgBox.style.backgroundColor = "#e6fcf5";
+                msgBox.innerHTML = `
+                    <strong style="color: #0ca678;">🚌 Plan B Activated: Bee-Line Bus Reroute!</strong>
+                    <p style="margin: 5px 0 0 0; font-size: 0.9em;">Switched to Bee-Line Bus Connector. Walk token to bus shelter on map and select bus run. +100 travel points awarded!</p>
+                `;
+                switchLine('BeeLine');
+            } else if (option === 'paratransit') {
+                msgBox.style.borderColor = "#6f42c1";
+                msgBox.style.backgroundColor = "#f3f0ff";
+                msgBox.innerHTML = `
+                    <strong style="color: #5f3dc4;">🚐 Plan B Activated: Westchester ParaTransit Requested!</strong>
+                    <p style="margin: 5px 0 0 0; font-size: 0.9em;">ParaTransit pass validated & ride requested with Angela. Safe door-to-door transit confirmed! +100 travel points awarded!</p>
+                `;
+            }
+            updateScore(100);
+            currentSessionBehavior.copingUsed.push(option === 'bus' ? "Plan B: Bee-Line Bus Reroute" : "Plan B: Westchester ParaTransit");
+            unlockBadge("badge-pivot");
+            setTimeout(() => msgBox.style.display = "none", 4500);
+        }
+
+        function triggerDelay() {
+            const msgBox = document.getElementById("intervention-msg");
+            msgBox.style.display = "block";
+            msgBox.style.borderColor = "#ffc107";
+            msgBox.style.backgroundColor = "#fff3cd";
+            msgBox.innerHTML = `
+                <strong style="color: #856404;">⚠️ Sensory Load: Express Train Screech / Bus Brake Squeal</strong>
+                <p style="margin: 5px 0 0 0; font-size: 0.9em;">Loud deceleration noises! Put on noise-canceling headphones to earn bonus points.</p>
+                <button class="warning" style="width:auto; margin-top:10px; padding: 5px 12px; font-size:0.85em;" onclick="activateHeadphones()">Put on Noise-Canceling Headphones</button>
+            `;
+            
+            // ---- PLAY THE SENSORY LOAD VIDEO FOR REAL-TIME REHEARSAL ----
+            if (currentLine === "BeeLine") {
+                playTransitVideo("bus_brake_screech.mp4", "Sensory Stressor: Bus Braking");
+            } else {
+                playTransitVideo("train_station_screech.mp4", "Sensory Stressor: Express Train Passing");
+            }
+            // --------------------------------------------------------------
+        }
+
+        function activateHeadphones() {
+            const msgBox = document.getElementById("intervention-msg");
+            msgBox.innerHTML = `
+                <strong style="color: var(--accent-teal);">🎧 Coping Strategy Confirmed!</strong>
+                <p style="margin: 5px 0 0 0; font-size: 0.9em;">Headphones activated. Sound isolation maintained. +50 travel points added!</p>
+            `;
+            updateScore(50);
+            currentSessionBehavior.copingUsed.push("Sensory Headphones");
+            unlockBadge("badge-advocacy");
+            setTimeout(() => msgBox.style.display = "none", 2500);
+        }
+
+        // Outburst Boundary Pause Sandbox Loop
+        function toggleOutburst() {
+            const badge = document.getElementById("conductor-badge");
+            const wrapper = document.getElementById("breathing-spacer");
+            const outburstBtn = document.getElementById("outburst-btn");
+
+            // Telemetry logging triggers
+            currentSessionBehavior.outburstOccurred = true;
+            currentSessionBehavior.startTime = Date.now();
+
+            badge.textContent = "Conductor: PAUSED";
+            badge.style.backgroundColor = "var(--accent-crimson)";
+            badge.style.color = "white";
+
+            wrapper.style.display = "flex";
+            outburstBtn.disabled = true;
+
+            document.getElementById("timetable").style.pointerEvents = "none";
+            document.getElementById("timetable").style.opacity = "0.25";
+        }
+
+        function endOutburst() {
+            const badge = document.getElementById("conductor-badge");
+            const wrapper = document.getElementById("breathing-spacer");
+            const outburstBtn = document.getElementById("outburst-btn");
+
+            // Finalize behavioral duration calculations
+            if (currentSessionBehavior.startTime) {
+                const duration = Math.round((Date.now() - currentSessionBehavior.startTime) / 1000);
+                currentSessionBehavior.totalDurationSec += duration;
+            }
+            currentSessionBehavior.copingUsed.push("Deep Breathing");
+            currentSessionBehavior.startTime = null;
+
+            badge.textContent = "Conductor: Calm";
+            badge.style.backgroundColor = "#f0ad4e";
+            badge.style.color = "black";
+
+            wrapper.style.display = "none";
+            outburstBtn.disabled = false;
+
+            document.getElementById("timetable").style.pointerEvents = "auto";
+            document.getElementById("timetable").style.opacity = "1";
+            
+            document.getElementById("intervention-msg").style.display = "none";
+            unlockBadge("badge-somatic");
+            
+            logCurrentSession(false); // Log as run completed with clinical interruptions
+        }
+
+        // Log Active Run metrics to Browser Database
+        function logCurrentSession(isCompleted) {
+            let history = JSON.parse(localStorage.getItem("wtc_session_history")) || [];
+            
+            const logEntry = {
+                log_id: "WTC-LOG-" + Date.now(),
+                session_date: new Date().toISOString().replace('T', ' ').substring(0, 19),
+                session_environment: "Web_Simulator",
+                mission_id: activeMission ? activeMission.id : "MANUAL_PLAY",
+                is_completed: isCompleted ? "Yes (Successful Trip)" : "No (Aborted)",
+                train_delayed: document.getElementById("intervention-msg").style.display === "block" ? 1 : 0,
+                sensory_trigger_active: currentSessionBehavior.copingUsed.includes("Sensory Headphones") ? 1 : 0,
+                outburst_occurred: currentSessionBehavior.outburstOccurred ? "Yes" : "No",
+                outburst_duration_sec: currentSessionBehavior.totalDurationSec,
+                coping_mechanism_used: currentSessionBehavior.copingUsed.length > 0 ? currentSessionBehavior.copingUsed.join("; ") : "None Used",
+                points_awarded: isCompleted ? 50 : 0
+            };
+
+            history.push(logEntry);
+            localStorage.setItem("wtc_session_history", JSON.stringify(history));
+            
+            currentSessionBehavior = {
+                outburstOccurred: false,
+                startTime: null,
+                totalDurationSec: 0,
+                copingUsed: []
+            };
+
+            updateDashboardCharts();
+        }
+
+        // Interactive Analytics Chart.js Engine
+        function updateDashboardCharts() {
+            const history = JSON.parse(localStorage.getItem("wtc_session_history")) || [];
+            
+            const completedCount = history.filter(h => h.is_completed.includes("Successful")).length;
+            const abortedCount = history.filter(h => h.is_completed.includes("Aborted")).length;
+
+            const timelineLabels = [];
+            const durationData = [];
+            
+            const recentSessions = history.slice(-7);
+            recentSessions.forEach((session, idx) => {
+                const shortDate = session.session_date.substring(5, 10) + " Run " + (idx + 1);
+                timelineLabels.push(shortDate);
+                durationData.push(session.outburst_duration_sec);
+            });
+
+            if (typeof Chart === 'undefined') {
+                document.getElementById("successChart").style.display = "none";
+                document.getElementById("durationChart").style.display = "none";
+                const fallback = document.getElementById("no-chart-fallback");
+                fallback.style.display = "block";
+                document.getElementById("completed-count-lbl").textContent = completedCount;
+                document.getElementById("aborted-count-lbl").textContent = abortedCount;
+                return;
+            }
+
+            // Success Doughnut Chart
+            const ctxSuccess = document.getElementById('successChart').getContext('2d');
+            if (successChartInstance) {
+                successChartInstance.destroy();
+            }
+            
+            if (completedCount === 0 && abortedCount === 0) {
+                ctxSuccess.font = "14px Arial";
+                ctxSuccess.fillStyle = "gray";
+                ctxSuccess.textAlign = "center";
+                ctxSuccess.fillText("Run missions to build charts!", 75, 90);
+            } else {
+                successChartInstance = new Chart(ctxSuccess, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Completed', 'Aborted'],
+                        datasets: [{
+                            data: [completedCount, abortedCount],
+                            backgroundColor: ['#008080', '#d9534f'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+                        }
+                    }
+                });
+            }
+
+            // Duration Recovery Chart
+            const ctxDuration = document.getElementById('durationChart').getContext('2d');
+            if (durationChartInstance) {
+                durationChartInstance.destroy();
+            }
+
+            durationChartInstance = new Chart(ctxDuration, {
+                type: 'line',
+                data: {
+                    labels: timelineLabels.length > 0 ? timelineLabels : ["No Runs yet"],
+                    datasets: [{
+                        label: 'Outburst Recovery Time',
+                        data: durationData,
+                        borderColor: '#d9534f',
+                        backgroundColor: 'rgba(217, 83, 79, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#d9534f'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Seconds', font: { size: 9 } },
+                            ticks: { font: { size: 9 } }
+                        },
+                        x: {
+                            ticks: { font: { size: 9 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // CSV Compiler & Downloader
+        function exportSessionLogsToCSV() {
+            const history = JSON.parse(localStorage.getItem("wtc_session_history")) || [];
+            
+            if (history.length === 0) {
+                alert("No clinical logs written yet. Complete some missions or inject mock data to download!");
+                return;
+            }
+
+            const headers = [
+                "Log ID",
+                "Session Timestamp",
+                "Environment",
+                "Mission ID",
+                "Successful Completion",
+                "Delay Introduced",
+                "Sensory Trigger Met",
+                "Outburst Occurred",
+                "Outburst Duration (sec)",
+                "Coping Mechanisms Used",
+                "Points Earned"
+            ];
+
+            let csvContent = "\uFEFF"; 
+            csvContent += headers.join(",") + "\r\n";
+
+            history.forEach(row => {
+                const line = [
+                    `"${row.log_id}"`,
+                    `"${row.session_date}"`,
+                    `"${row.session_environment}"`,
+                    `"${row.mission_id}"`,
+                    `"${row.is_completed}"`,
+                    row.train_delayed,
+                    row.sensory_trigger_active,
+                    `"${row.outburst_occurred}"`,
+                    row.outburst_duration_sec,
+                    `"${row.coping_mechanism_used}"`,
+                    row.points_awarded
+                ];
+                csvContent += line.join(",") + "\r\n";
+            });
+
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `WTC_Clinical_Telemetry_${new Date().toISOString().substring(0, 10)}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Developer Diagnostics Mock Injector
+        function injectMockTransitLogs() {
+            const mockHistory = [
+                { log_id: "WTC-LOG-1", session_date: "2026-09-01 09:15:30", session_environment: "Web_Simulator", mission_id: "WTC-MIS-001", is_completed: "Yes (Successful Trip)", train_delayed: 0, sensory_trigger_active: 0, outburst_occurred: "No", outburst_duration_sec: 0, coping_mechanism_used: "None Used", points_awarded: 50 },
+                { log_id: "WTC-LOG-2", session_date: "2026-09-01 14:30:15", session_environment: "Web_Simulator", mission_id: "WTC-MIS-002", is_completed: "Yes (Successful Trip)", train_delayed: 1, sensory_trigger_active: 1, outburst_occurred: "No", outburst_duration_sec: 0, coping_mechanism_used: "Sensory Headphones", points_awarded: 100 },
+                { log_id: "WTC-LOG-3", session_date: "2026-09-02 10:45:00", session_environment: "Web_Simulator", mission_id: "WTC-MIS-003", is_completed: "Yes (Successful Trip)", train_delayed: 1, sensory_trigger_active: 0, outburst_occurred: "Yes", outburst_duration_sec: 45, coping_mechanism_used: "Deep Breathing", points_awarded: 50 },
+                { log_id: "WTC-LOG-4", session_date: "2026-09-02 16:20:10", session_environment: "Web_Simulator", mission_id: "WTC-MIS-004", is_completed: "No (Aborted)", train_delayed: 0, sensory_trigger_active: 1, outburst_occurred: "Yes", outburst_duration_sec: 120, coping_mechanism_used: "None Used", points_awarded: 0 },
+                { log_id: "WTC-LOG-5", session_date: "2026-09-03 11:05:45", session_environment: "Web_Simulator", mission_id: "WTC-MIS-005", is_completed: "Yes (Successful Trip)", train_delayed: 0, sensory_trigger_active: 0, outburst_occurred: "No", outburst_duration_sec: 0, coping_mechanism_used: "None Used", points_awarded: 50 },
+                { log_id: "WTC-LOG-6", session_date: "2026-09-03 15:50:22", session_environment: "Web_Simulator", mission_id: "WTC-MIS-006", is_completed: "Yes (Successful Trip)", train_delayed: 1, sensory_trigger_active: 1, outburst_occurred: "No", outburst_duration_sec: 0, coping_mechanism_used: "Sensory Headphones", points_awarded: 100 },
+                { log_id: "WTC-LOG-7", session_date: "2026-09-04 09:30:00", session_environment: "Web_Simulator", mission_id: "WTC-MIS-007", is_completed: "Yes (Successful Trip)", train_delayed: 1, sensory_trigger_active: 1, outburst_occurred: "Yes", outburst_duration_sec: 90, coping_mechanism_used: "Deep Breathing; Sensory Headphones", points_awarded: 150 },
+                { log_id: "WTC-LOG-8", session_date: "2026-09-04 13:15:10", session_environment: "Web_Simulator", mission_id: "WTC-MIS-001", is_completed: "Yes (Successful Trip)", train_delayed: 0, sensory_trigger_active: 0, outburst_occurred: "No", outburst_duration_sec: 0, coping_mechanism_used: "None Used", points_awarded: 50 },
+                { log_id: "WTC-LOG-9", session_date: "2026-09-05 10:10:40", session_environment: "Web_Simulator", mission_id: "WTC-MIS-003", is_completed: "Yes (Successful Trip)", train_delayed: 0, sensory_trigger_active: 1, outburst_occurred: "No", outburst_duration_sec: 0, coping_mechanism_used: "Deep Breathing", points_awarded: 50 },
+                { log_id: "WTC-LOG-10", session_date: "2026-09-05 14:40:00", session_environment: "Web_Simulator", mission_id: "WTC-MIS-005", is_completed: "Yes (Successful Trip)", train_delayed: 1, sensory_trigger_active: 1, outburst_occurred: "Yes", outburst_duration_sec: 30, coping_mechanism_used: "Deep Breathing; Sensory Headphones", points_awarded: 150 }
+            ];
+
+            localStorage.setItem("wtc_session_history", JSON.stringify(mockHistory));
+            localStorage.setItem("wtc_current_score", "900");
+            alert("🧪 Diagnostics complete: 10 realistic clinical logs injected! The dashboard charts and CSV files are now fully loaded.");
+            location.reload();
+        }
+
+        // =====================================================================
+        // --- Video Modal & Interactive Safety Checklist Controller Engine ---
+        // =====================================================================
+        
+        // Map containing sequential, timestamp-gated safety routines for each video file
+        const videoChecklistDefinitions = {
+            "metro_north_depart.mp4": [
+                { time: 0, text: "Locate platform safety zone & stand behind yellow line.", done: false },
+                { time: 6, text: "Wait calmly for arriving train to come to a complete stop.", done: false },
+                { time: 12, text: "Let exiting passengers step off first, then watch the platform gap.", done: false }
+            ],
+            "beeline_route6_depart.mp4": [
+                { time: 0, text: "Wait at the bus shelter safely back from the curb.", done: false },
+                { time: 5, text: "Let exiting passengers step down carefully.", done: false },
+                { time: 10, text: "Step up slowly, greet the driver, and present your ticket.", done: false }
+            ],
+            "train_station_screech.mp4": [
+                { time: 0, text: "Hear loud screech! Stop walking and stand still on platform.", done: false },
+                { time: 4, text: "Open your travel backpack and retrieve your headphones.", done: false },
+                { time: 8, text: "Put on headphones and take 3 slow, deep breaths.", done: false }
+            ],
+            "bus_brake_screech.mp4": [
+                { time: 0, text: "Hear loud brake squeal! Remain standing safely on the curb.", done: false },
+                { time: 4, text: "Open your travel backpack and retrieve your headphones.", done: false },
+                { time: 8, text: "Put on headphones and take 3 slow, deep breaths.", done: false }
+            ]
+        };
+
+        let activeChecklistData = [];
+
+        let fallbackChecklistTimer = null;
+
+        function playScreechSound() {
+            try {
+                if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                let osc1 = audioContext.createOscillator();
+                let osc2 = audioContext.createOscillator();
+                let gain = audioContext.createGain();
+
+                osc1.type = 'sawtooth';
+                osc2.type = 'square';
+
+                osc1.frequency.setValueAtTime(800, audioContext.currentTime);
+                osc1.frequency.exponentialRampToValueAtTime(300, audioContext.currentTime + 1.2);
+
+                osc2.frequency.setValueAtTime(850, audioContext.currentTime);
+                osc2.frequency.exponentialRampToValueAtTime(320, audioContext.currentTime + 1.2);
+
+                gain.gain.setValueAtTime(0.25, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.2);
+
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(audioContext.destination);
+
+                osc1.start();
+                osc2.start();
+                osc1.stop(audioContext.currentTime + 1.2);
+                osc2.stop(audioContext.currentTime + 1.2);
+            } catch(e) {
+                console.log("Audio API blocked or unsupported.");
+            }
+        }
+
+        function playTransitVideo(videoFileName, titleText) {
+            const modal = document.getElementById("video-modal");
+            const video = document.getElementById("modal-video-player");
+            const source = document.getElementById("video-source");
+            const title = document.getElementById("video-modal-title");
+            const fallbackCard = document.getElementById("video-fallback-card");
+
+            if (fallbackChecklistTimer) clearInterval(fallbackChecklistTimer);
+
+            // Try loading from gallery/ or gallery/videos/ or assets/videos/
+            const localVideoPath = `gallery/${videoFileName}`;
+
+            title.textContent = titleText;
+            
+            // Reset visibility
+            video.style.display = "block";
+            fallbackCard.style.display = "none";
+
+            source.src = localVideoPath;
+            
+            // Initialize and render the matching checklist
+            initializeChecklistUI(videoFileName);
+
+            // Handle missing video files gracefully
+            video.onerror = function() {
+                console.log(`Video file not found at ${localVideoPath}. Switching to Interactive Simulation Fallback.`);
+                video.style.display = "none";
+                fallbackCard.style.display = "flex";
+
+                const isScreech = videoFileName.includes("screech") || videoFileName.includes("brake");
+                document.getElementById("fallback-icon-display").textContent = isScreech ? "🔊" : "🚂";
+                document.getElementById("fallback-status-title").textContent = titleText;
+                document.getElementById("fallback-status-desc").textContent = isScreech 
+                    ? "Sensory Stressor Active: High sound isolation rehearsal mode."
+                    : "Vehicle Departure Sequence: Follow the platform steps on the right.";
+
+                playScreechSound();
+                activateFallbackChecklistProgression();
+            };
+
+            // Force browser to reload the video source stream
+            video.load(); 
+            
+            // Reveal modal
+            modal.classList.add("active");
+            
+            // Play the video stream with a fallback catch block
+            video.play()
+                .then(() => console.log(`Playing video modeling asset: ${videoFileName}`))
+                .catch(err => {
+                    console.log("Auto-play blocked or missing file. Interactive fallback ready.", err);
+                    video.controls = true;
+                });
+        }
+
+        function activateFallbackChecklistProgression() {
+            if (activeChecklistData.length === 0) return;
+            
+            // Immediately activate first step
+            let stepIdx = 0;
+            const activateStep = (idx) => {
+                const itemEl = document.getElementById(`chk-item-${idx}`);
+                const checkboxEl = document.getElementById(`chk-box-${idx}`);
+                if (itemEl && checkboxEl) {
+                    document.querySelectorAll(".checklist-item").forEach(el => el.classList.remove("active"));
+                    itemEl.classList.add("active");
+                    checkboxEl.disabled = false;
+                    playWhistle(600, 0.05);
+                }
+            };
+
+            activateStep(0);
+
+            // Auto advance active highlighting every 3.5 seconds if user hasn't checked off
+            fallbackChecklistTimer = setInterval(() => {
+                stepIdx++;
+                if (stepIdx < activeChecklistData.length) {
+                    activateStep(stepIdx);
+                } else {
+                    clearInterval(fallbackChecklistTimer);
+                }
+            }, 3500);
+        }
+
+        function initializeChecklistUI(videoFileName) {
+            const box = document.getElementById("video-checklist-box");
+            const container = document.getElementById("checklist-items-container");
+            const progressText = document.getElementById("checklist-progress");
+            
+            container.innerHTML = "";
+            
+            const steps = videoChecklistDefinitions[videoFileName];
+            if (!steps) {
+                box.style.display = "none";
+                activeChecklistData = [];
+                return;
+            }
+            
+            // Deep copy the configuration to safely mutate state during active session
+            activeChecklistData = JSON.parse(JSON.stringify(steps));
+            progressText.textContent = `0/${activeChecklistData.length}`;
+            
+            activeChecklistData.forEach((step, idx) => {
+                const item = document.createElement("div");
+                item.className = "checklist-item";
+                item.id = `chk-item-${idx}`;
+                item.innerHTML = `
+                    <input type="checkbox" class="checklist-checkbox" id="chk-box-${idx}" disabled onchange="checkOffStep(${idx})">
+                    <span>${step.text}</span>
+                `;
+                container.appendChild(item);
+            });
+            
+            box.style.display = "block";
+        }
+
+        // HTML5 Player Native Timeupdate Loop
+        document.getElementById("modal-video-player").addEventListener("timeupdate", function() {
+            if (activeChecklistData.length === 0) return;
+            
+            const currentTime = this.currentTime;
+            
+            activeChecklistData.forEach((step, idx) => {
+                const itemEl = document.getElementById(`chk-item-${idx}`);
+                const checkboxEl = document.getElementById(`chk-box-${idx}`);
+                
+                // If player has crossed the step's safety trigger timestamp
+                if (currentTime >= step.time && !step.done) {
+                    if (!itemEl.classList.contains("active") && !itemEl.classList.contains("completed")) {
+                        
+                        // Clear any other active indicators to focus gaze on single step
+                        document.querySelectorAll(".checklist-item").forEach(el => el.classList.remove("active"));
+                        
+                        // Set step active and enable input
+                        itemEl.classList.add("active");
+                        checkboxEl.disabled = false;
+                        
+                        // Play tiny visual focus alert (sensory chime)
+                        playWhistle(600, 0.05); 
+                    }
+                }
+            });
+        });
+
+        // Interactive User Check Event
+        function checkOffStep(idx) {
+            const itemEl = document.getElementById(`chk-item-${idx}`);
+            const checkboxEl = document.getElementById(`chk-box-${idx}`);
+            
+            if (checkboxEl.checked) {
+                itemEl.classList.remove("active");
+                itemEl.classList.add("completed");
+                checkboxEl.disabled = true; // Lock choice to enforce completion order
+                activeChecklistData[idx].done = true;
+                
+                // 1. Reward the user with +10 points for cognitive physical alignment
+                updateScore(10);
+                
+                // 2. Play positive reinforcement double-chime
+                playWhistle(523, 0.1);
+                setTimeout(() => playWhistle(659, 0.15), 80);
+                
+                // 3. Update Progress Ratio Indicator
+                const completedCount = activeChecklistData.filter(s => s.done).length;
+                document.getElementById("checklist-progress").textContent = `${completedCount}/${activeChecklistData.length}`;
+            }
+        }
+
+        function closeVideoModal() {
+            const modal = document.getElementById("video-modal");
+            const video = document.getElementById("modal-video-player");
+            
+            if (fallbackChecklistTimer) clearInterval(fallbackChecklistTimer);
+
+            // Pause video instantly to kill audio track
+            video.pause();
+            video.currentTime = 0; // Rewind
+            
+            modal.classList.remove("active");
+        }
+    
+        // --- Interactive Map Token Coordinate Sync ---
+        const mapStationCoords = {
+            'Yonkers':      { top: '75%', left: '25%' },
+            'Hastings':     { top: '62%', left: '26%' },
+            'Dobbs Ferry':  { top: '52%', left: '27%' },
+            'Irvington':    { top: '45%', left: '28%' },
+            'Tarrytown':    { top: '32%', left: '30%' },
+            'Peekskill':    { top: '20%', left: '32%' },
+            'White Plains': { top: '40%', left: '55%' },
+            'Scarsdale':    { top: '50%', left: '52%' },
+            'Mt. Vernon':   { top: '68%', left: '48%' },
+            'Mt. Kisco':    { top: '25%', left: '60%' }
+        };
+
+        function selectStationPin(stationName) {
+            document.getElementById('origin-select').value = stationName;
+            updateQuery();
+            syncMapVehicleToken(stationName);
+        }
+
+        function syncMapVehicleToken(stationName) {
+            const token = document.getElementById('active-vehicle-token');
+            if (token && mapStationCoords[stationName]) {
+                token.style.top = mapStationCoords[stationName].top;
+                token.style.left = mapStationCoords[stationName].left;
+            }
+            if (token) {
+                if (currentLine === 'BeeLine') {
+                    token.src = 'wtc_bus_red.png';
+                } else if (currentLine === 'Harlem') {
+                    token.src = 'wtc_train_blue.png';
+                } else {
+                    token.src = 'wtc_train_green.png';
+                }
+            }
+        }
+
+    </script>
+</body>
+</html>
