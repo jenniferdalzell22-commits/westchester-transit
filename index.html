@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Westchester Transit Connection - Prototyping Portal v13</title>
+    <title>Westchester Transit Connection - Prototyping Portal v14</title>
     <!-- Progressive Web App Metadata -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#008080">
@@ -641,6 +641,41 @@
     </header>
 
     <div class="app-container">
+<!-- Interactive Westchester Route Map Section -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <h2>🗺️ Interactive Westchester Route Map & Live Token Tracker</h2>
+                <p style="font-size:0.9em; color:gray; margin-top:-5px;">Select a station or click a pin below to view the location on the Metro-North & Bee-Line network.</p>
+                <div class="map-wrapper" style="position: relative; width: 100%; max-width: 1100px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 2px solid var(--accent-slate);">
+                    <img src="gallery/map with stations copy.jpg" id="transit-map" alt="Westchester Transit Map" onerror="handleImageError(this, 'map')" style="width: 100%; display: block;">
+
+                    <!-- Station Hotspot Pins -->
+                    <!-- Hudson Line Pins -->
+                    <div class="station-pin" style="position:absolute; top:75%; left:25%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Yonkers')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Yonkers</span></div>
+                    <div class="station-pin" style="position:absolute; top:58%; left:26%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Hastings')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Hastings</span></div>
+                    <div class="station-pin" style="position:absolute; top:52%; left:27%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Dobbs Ferry')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Dobbs Ferry</span></div>
+                    <div class="station-pin" style="position:absolute; top:45%; left:28%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Irvington')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Irvington</span></div>
+                    <div class="station-pin" style="position:absolute; top:32%; left:30%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Tarrytown')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Tarrytown</span></div>
+                    <div class="station-pin" style="position:absolute; top:20%; left:32%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Peekskill')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Peekskill</span></div>
+
+                    <!-- Harlem Line Pins -->
+                    <div class="station-pin" style="position:absolute; top:68%; left:48%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Mt. Vernon')"><span class="pin-label" style="background:#1f77b4; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Mt. Vernon</span></div>
+                    <div class="station-pin" style="position:absolute; top:50%; left:52%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Scarsdale')"><span class="pin-label" style="background:#1f77b4; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Scarsdale</span></div>
+                    <div class="station-pin" style="position:absolute; top:40%; left:55%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('White Plains')"><span class="pin-label" style="background:#1f77b4; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">White Plains</span></div>
+                    <div class="station-pin" style="position:absolute; top:25%; left:60%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Mt. Kisco')"><span class="pin-label" style="background:#1f77b4; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Mt. Kisco</span></div>
+
+                    <!-- Bee-Line Bus Pins -->
+                    <div class="station-pin" style="position:absolute; top:44%; left:46%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Library')"><span class="pin-label" style="background:#d62728; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Library</span></div>
+                    <div class="station-pin" style="position:absolute; top:38%; left:48%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Movie Theater')"><span class="pin-label" style="background:#d62728; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Movie Theater</span></div>
+
+                    <!-- Active Moving Vehicle Token -->
+                    <img src="gallery/wtc_train_green.png" id="active-vehicle-token" alt="Train Token" onerror="handleImageError(this, 'token')" style="position:absolute; top:45%; left:28%; width:54px; height:54px; transform:translate(-50%,-50%); transition: top 0.6s cubic-bezier(0.25, 1, 0.5, 1), left 0.6s cubic-bezier(0.25, 1, 0.5, 1); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); z-index:100;">
+                </div>
+            </div>
+
+    </div>
+
+    
+
         <!-- Left: Control Column -->
         <div style="display: flex; flex-direction: column; gap: 20px;">
             <div class="card">
@@ -795,40 +830,7 @@
             </div>
         </div>
     
-            <!-- Interactive Westchester Route Map Section -->
-            <div class="card" style="grid-column: 1 / -1;">
-                <h2>🗺️ Interactive Westchester Route Map</h2>
-                <p style="font-size:0.9em; color:gray; margin-top:-5px;">Select a station or click a pin below to view the location on the Metro-North & Bee-Line network.</p>
-                <div class="map-wrapper" style="position: relative; width: 100%; max-width: 1100px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 2px solid var(--accent-slate);">
-                    <img src="gallery/map with stations copy.jpg" id="transit-map" alt="Westchester Transit Map" style="width: 100%; display: block;">
-
-                    <!-- Station Hotspot Pins -->
-                    <!-- Hudson Line Pins -->
-                    <div class="station-pin" style="position:absolute; top:75%; left:25%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Yonkers')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Yonkers</span></div>
-                    <div class="station-pin" style="position:absolute; top:58%; left:26%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Hastings')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Hastings</span></div>
-                    <div class="station-pin" style="position:absolute; top:52%; left:27%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Dobbs Ferry')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Dobbs Ferry</span></div>
-                    <div class="station-pin" style="position:absolute; top:45%; left:28%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Irvington')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Irvington</span></div>
-                    <div class="station-pin" style="position:absolute; top:32%; left:30%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Tarrytown')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Tarrytown</span></div>
-                    <div class="station-pin" style="position:absolute; top:20%; left:32%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Peekskill')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Peekskill</span></div>
-
-                    <!-- Harlem Line Pins -->
-                    <div class="station-pin" style="position:absolute; top:68%; left:48%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Mt. Vernon')"><span class="pin-label" style="background:#1f77b4; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Mt. Vernon</span></div>
-                    <div class="station-pin" style="position:absolute; top:50%; left:52%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Scarsdale')"><span class="pin-label" style="background:#1f77b4; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Scarsdale</span></div>
-                    <div class="station-pin" style="position:absolute; top:40%; left:55%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('White Plains')"><span class="pin-label" style="background:#1f77b4; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">White Plains</span></div>
-                    <div class="station-pin" style="position:absolute; top:25%; left:60%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Mt. Kisco')"><span class="pin-label" style="background:#1f77b4; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Mt. Kisco</span></div>
-
-                    <!-- Bee-Line Bus Pins -->
-                    <div class="station-pin" style="position:absolute; top:44%; left:46%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Library')"><span class="pin-label" style="background:#d62728; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Library</span></div>
-                    <div class="station-pin" style="position:absolute; top:38%; left:48%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Movie Theater')"><span class="pin-label" style="background:#d62728; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Movie Theater</span></div>
-
-                    <!-- Active Moving Vehicle Token -->
-                    <img src="gallery/wtc_train_green.png" id="active-vehicle-token" alt="Train Token" style="position:absolute; top:45%; left:28%; width:52px; height:52px; transform:translate(-50%,-50%); transition: top 0.6s cubic-bezier(0.25, 1, 0.5, 1), left 0.6s cubic-bezier(0.25, 1, 0.5, 1); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); z-index:10;">
-                </div>
-            </div>
-
-    </div>
-
-    <!-- Video Modeling Modal with Interactive Clinical Checklist -->
+            <!-- Video Modeling Modal with Interactive Clinical Checklist -->
     <div class="video-modal-overlay" id="video-modal">
         <div class="video-modal-card">
             <div class="video-modal-header">
@@ -1864,7 +1866,37 @@
             playWhistle(523, 0.1);
         }
 
-        function syncMapVehicleToken(stationName) {
+        
+        // --- Fail-Safe Image & Token Fallback Handler ---
+        function handleImageError(img, type) {
+            console.warn("Image load failed for:", img.src, "Type:", type);
+            if (type === 'map') {
+                if (img.src.includes('gallery/')) {
+                    img.src = 'map with stations copy.jpg';
+                } else if (img.src.includes('with%20stations')) {
+                    img.src = 'map_with_stations_copy.jpg';
+                }
+            } else if (type === 'token') {
+                if (img.src.includes('gallery/')) {
+                    const filename = img.src.split('gallery/')[1];
+                    img.src = filename;
+                } else {
+                    // Fail-safe SVG token badge rendering if PNG file is missing or blocked
+                    let color = '%232ca02c'; // Hudson Green
+                    let icon = '🚆';
+                    if (typeof currentLine !== 'undefined' && currentLine === 'BeeLine') { 
+                        color = '%23d62728'; // BeeLine Red
+                        icon = '🚌'; 
+                    } else if (typeof currentLine !== 'undefined' && currentLine === 'Harlem') { 
+                        color = '%231f77b4'; // Harlem Blue
+                        icon = '🚆'; 
+                    }
+                    img.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="${color}" stroke="white" stroke-width="4"/><text x="32" y="44" font-size="32" text-anchor="middle">${icon}</text></svg>`;
+                }
+            }
+        }
+
+function syncMapVehicleToken(stationName) {
             const token = document.getElementById('active-vehicle-token');
             if (!token || !stationName) return;
 
