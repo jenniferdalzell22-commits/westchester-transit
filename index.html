@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Westchester Transit Connection - Prototyping Portal v16</title>
+    <title>Westchester Transit Connection - Prototyping Portal v17</title>
     <!-- Progressive Web App Metadata -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#008080">
@@ -677,11 +677,8 @@
                     <div class="station-pin" style="position:absolute; top:44%; left:46%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Library')"><span class="pin-label" style="background:#d62728; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Library</span></div>
                     <div class="station-pin" style="position:absolute; top:38%; left:48%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Movie Theater')"><span class="pin-label" style="background:#d62728; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Movie Theater</span></div>
 
-                    <!-- Active Moving Vehicle Token Container (Fail-Safe Dual Layer) -->
-                    <div id="token-container" style="position:absolute; top:45%; left:28%; transform:translate(-50%,-50%); transition: top 0.8s cubic-bezier(0.25, 1, 0.5, 1), left 0.8s cubic-bezier(0.25, 1, 0.5, 1); z-index:100; pointer-events:none;">
-                        <img src="gallery/wtc_train_green.png" id="active-vehicle-token" alt="Vehicle Token" onerror="handleImageError(this, 'token')" style="width:56px; height:56px; display:block; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));">
-                        <div id="fallback-vector-token" style="display:none; align-items:center; justify-content:center; width:48px; height:48px; border-radius:50%; background:#2ca02c; color:white; font-size:24px; font-weight:bold; border:3px solid white; box-shadow:0 4px 12px rgba(0,0,0,0.6); text-align:center;">🚆</div>
-                    </div>
+                    <!-- Active Moving Vehicle Token -->
+                    <img src="gallery/wtc_train_green.png" id="active-vehicle-token" alt="Vehicle Token" onerror="handleImageError(this, 'token')" style="position:absolute; top:45%; left:28%; transform:translate(-50%,-50%); transition: top 0.8s cubic-bezier(0.25, 1, 0.5, 1), left 0.8s cubic-bezier(0.25, 1, 0.5, 1); width:56px; height:56px; display:block; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); z-index:100;">
                 </div>
             </div>
 
@@ -1948,7 +1945,7 @@
         }
 
         
-        // --- Fail-Safe Image & Token Fallback Handler ---
+                // --- Fail-Safe Image & Token Fallback Handler ---
         function handleImageError(img, type) {
             console.warn("Image load failed for:", img.src, "Type:", type);
             if (type === 'map') {
@@ -1958,25 +1955,33 @@
                     img.src = 'map_with_stations_copy.jpg';
                 }
             } else if (type === 'token') {
-                if (img.src.includes('gallery/')) {
+                // If bus_front_red failed, try wtc_bus_red.png
+                if (img.src.includes('wtc_bus_front_red.png')) {
+                    img.src = 'gallery/wtc_bus_red.png';
+                } else if (img.src.includes('gallery/')) {
+                    // Try root path without gallery/
                     const filename = img.src.split('gallery/')[1];
-                    img.src = filename; // Try root path
+                    img.src = filename;
                 } else {
-                    // Fail-safe: hide broken image and reveal vector token badge
-                    img.style.display = 'none';
-                    const fallbackVector = document.getElementById('fallback-vector-token');
-                    if (fallbackVector) {
-                        fallbackVector.style.display = 'flex';
+                    // SVG Data-URI badge fallback so element NEVER disappears
+                    let color = '%232ca02c'; // Green
+                    let icon = '🚆';
+                    if (typeof currentLine !== 'undefined' && currentLine === 'BeeLine') { 
+                        color = '%23d62728'; // Red
+                        icon = '🚌'; 
+                    } else if (typeof currentLine !== 'undefined' && currentLine === 'Harlem') { 
+                        color = '%231f77b4'; // Blue
+                        icon = '🚆'; 
                     }
+                    img.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='28' fill='" + color + "' stroke='white' stroke-width='4'/><text x='32' y='44' font-size='32' text-anchor='middle'>" + icon + "</text></svg>";
+                    img.style.display = 'block';
                 }
             }
         }
 
         function syncMapVehicleToken(stationName) {
-            const container = document.getElementById('token-container');
             const tokenImg = document.getElementById('active-vehicle-token');
-            const fallbackVector = document.getElementById('fallback-vector-token');
-            if (!stationName) return;
+            if (!stationName || !tokenImg) return;
 
             let coords = mapStationCoords[stationName];
             if (!coords) {
@@ -1989,44 +1994,21 @@
             }
 
             if (coords) {
-                if (container) {
-                    container.style.top = coords.top;
-                    container.style.left = coords.left;
-                    container.style.display = 'block';
-                } else if (tokenImg) {
-                    tokenImg.style.top = coords.top;
-                    tokenImg.style.left = coords.left;
-                    tokenImg.style.display = 'block';
-                }
-            }
-
-            // Update fallback vector styling & emoji
-            let bgCol = '#2ca02c';
-            let iconEmoji = '🚆';
-            if (currentLine === 'BeeLine') {
-                bgCol = '#d62728';
-                iconEmoji = '🚌';
-            } else if (currentLine === 'Harlem') {
-                bgCol = '#1f77b4';
-                iconEmoji = '🚆';
-            }
-
-            if (fallbackVector) {
-                fallbackVector.style.background = bgCol;
-                fallbackVector.innerHTML = iconEmoji;
-            }
-
-            if (tokenImg) {
+                tokenImg.style.top = coords.top;
+                tokenImg.style.left = coords.left;
                 tokenImg.style.display = 'block';
-                if (currentLine === 'BeeLine') {
-                    tokenImg.src = 'gallery/wtc_bus_front_red.png';
-                } else if (currentLine === 'Harlem') {
-                    tokenImg.src = 'gallery/wtc_train_blue.png';
-                } else {
-                    tokenImg.src = 'gallery/wtc_train_green.png';
-                }
             }
+
+            if (currentLine === 'BeeLine') {
+                tokenImg.src = 'gallery/wtc_bus_front_red.png';
+            } else if (currentLine === 'Harlem') {
+                tokenImg.src = 'gallery/wtc_train_blue.png';
+            } else {
+                tokenImg.src = 'gallery/wtc_train_green.png';
+            }
+            tokenImg.style.display = 'block';
         }
+
     </script>
 
     <!-- Profile & Session Name Setup Modal -->
