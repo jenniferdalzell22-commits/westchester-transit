@@ -1956,7 +1956,7 @@
                 }
             } else if (type === 'token') {
                 // If bus_front_red failed, try wtc_bus_red.png
-                if (img.src.includes('wtc_bus_front_red.png')) {
+                if (img.src.includes('wtc_bus_red.png')) {
                     img.src = 'gallery/wtc_bus_red.png';
                 } else if (img.src.includes('gallery/')) {
                     // Try root path without gallery/
@@ -2000,7 +2000,7 @@
             }
 
             if (currentLine === 'BeeLine') {
-                tokenImg.src = 'gallery/wtc_bus_front_red.png';
+                tokenImg.src = 'gallery/wtc_bus_red.png';
             } else if (currentLine === 'Harlem') {
                 tokenImg.src = 'gallery/wtc_train_blue.png';
             } else {
