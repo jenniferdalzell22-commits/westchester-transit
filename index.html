@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Westchester Transit Connection - Prototyping Portal v19</title>
+    <title>Westchester Transit Connection - Prototyping Portal v20</title>
     <!-- Progressive Web App Metadata -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#008080">
@@ -1049,10 +1049,16 @@
             renderTimetable();
             populateOriginDropdown();
             
-            const firstStop = routes[lineName].stops[0];
-            syncMapVehicleToken(firstStop);
-            updateDashboardCharts();
-        });
+           const firstStop = routes[currentLine].stops[0];
+			syncMapVehicleToken(firstStop);
+
+			console.log(
+				"Initial token sync:",
+				firstStop
+			);
+
+			updateDashboardCharts();
+					});
 
         // Render Timetable Grid dynamically based on selected line
         function renderTimetable() {
@@ -1126,7 +1132,7 @@
             renderTimetable();
             populateOriginDropdown();
             
-            const firstStop = routes[lineName].stops[0];
+           const firstStop = routes[currentLine].stops[0];
             syncMapVehicleToken(firstStop);
             
             document.getElementById("time-select").value = "";
@@ -2006,11 +2012,25 @@
                 }
             }
 
-            if (coords) {
-                tokenImg.style.top = coords.top;
-                tokenImg.style.left = coords.left;
-                tokenImg.style.display = 'block';
-            }
+           if (coords) {
+			tokenImg.style.top = coords.top;
+			tokenImg.style.left = coords.left;
+			tokenImg.style.display = 'block';
+
+			console.log(
+				"Token sync:",
+				stationName,
+				coords.top,
+				coords.left
+			);
+		}
+		else {
+
+			console.warn(
+				"No coordinates found for:",
+				stationName
+			);
+}
 
             if (currentLine === 'BeeLine') {
                 tokenImg.src = 'gallery/wtc_bus_red.png';
