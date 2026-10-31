@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Westchester Transit Connection - Prototyping Portal</title>
+    <title>Westchester Transit Connection - Prototyping Portal v12</title>
     <!-- Progressive Web App Metadata -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#008080">
@@ -803,15 +803,26 @@
                     <img src="gallery/map with stations copy.jpg" id="transit-map" alt="Westchester Transit Map" style="width: 100%; display: block;">
 
                     <!-- Station Hotspot Pins -->
+                    <!-- Hudson Line Pins -->
                     <div class="station-pin" style="position:absolute; top:75%; left:25%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Yonkers')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Yonkers</span></div>
                     <div class="station-pin" style="position:absolute; top:58%; left:26%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Hastings')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Hastings</span></div>
                     <div class="station-pin" style="position:absolute; top:52%; left:27%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Dobbs Ferry')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Dobbs Ferry</span></div>
                     <div class="station-pin" style="position:absolute; top:45%; left:28%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Irvington')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Irvington</span></div>
                     <div class="station-pin" style="position:absolute; top:32%; left:30%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Tarrytown')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Tarrytown</span></div>
+                    <div class="station-pin" style="position:absolute; top:20%; left:32%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Peekskill')"><span class="pin-label" style="background:#2ca02c; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Peekskill</span></div>
+
+                    <!-- Harlem Line Pins -->
+                    <div class="station-pin" style="position:absolute; top:68%; left:48%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Mt. Vernon')"><span class="pin-label" style="background:#1f77b4; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Mt. Vernon</span></div>
+                    <div class="station-pin" style="position:absolute; top:50%; left:52%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Scarsdale')"><span class="pin-label" style="background:#1f77b4; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Scarsdale</span></div>
                     <div class="station-pin" style="position:absolute; top:40%; left:55%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('White Plains')"><span class="pin-label" style="background:#1f77b4; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">White Plains</span></div>
+                    <div class="station-pin" style="position:absolute; top:25%; left:60%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Mt. Kisco')"><span class="pin-label" style="background:#1f77b4; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Mt. Kisco</span></div>
+
+                    <!-- Bee-Line Bus Pins -->
+                    <div class="station-pin" style="position:absolute; top:44%; left:46%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Library')"><span class="pin-label" style="background:#d62728; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Library</span></div>
+                    <div class="station-pin" style="position:absolute; top:38%; left:48%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Movie Theater')"><span class="pin-label" style="background:#d62728; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Movie Theater</span></div>
 
                     <!-- Active Moving Vehicle Token -->
-                    <img src="gallery/wtc_train_green.png" id="active-vehicle-token" alt="Train Token" style="position:absolute; top:45%; left:28%; width:52px; height:52px; transform:translate(-50%,-50%); transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); z-index:10;">
+                    <img src="gallery/wtc_train_green.png" id="active-vehicle-token" alt="Train Token" style="position:absolute; top:45%; left:28%; width:52px; height:52px; transform:translate(-50%,-50%); transition: top 0.6s cubic-bezier(0.25, 1, 0.5, 1), left 0.6s cubic-bezier(0.25, 1, 0.5, 1); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); z-index:10;">
                 </div>
             </div>
 
@@ -985,12 +996,8 @@
             renderTimetable();
             populateOriginDropdown();
             
-            const token = document.getElementById("active-vehicle-token");
-            if (token) {
-                if (lineName === "Hudson") token.src = "gallery/wtc_train_green.png";
-                else if (lineName === "Harlem") token.src = "gallery/wtc_train_blue.png";
-                else if (lineName === "BeeLine") token.src = "gallery/wtc_bus_red.png";
-            }
+            const firstStop = routes[lineName].stops[0];
+            syncMapVehicleToken(firstStop);
             updateDashboardCharts();
         });
 
@@ -1066,12 +1073,8 @@
             renderTimetable();
             populateOriginDropdown();
             
-            const token = document.getElementById("active-vehicle-token");
-            if (token) {
-                if (lineName === "Hudson") token.src = "gallery/wtc_train_green.png";
-                else if (lineName === "Harlem") token.src = "gallery/wtc_train_blue.png";
-                else if (lineName === "BeeLine") token.src = "gallery/wtc_bus_red.png";
-            }
+            const firstStop = routes[lineName].stops[0];
+            syncMapVehicleToken(firstStop);
             
             document.getElementById("time-select").value = "";
             document.getElementById("time-select").disabled = true;
@@ -1083,21 +1086,42 @@
         function drawMission() {
             activeMission = missions[Math.floor(Math.random() * missions.length)];
             const textEl = document.getElementById("mission-text");
+            
+            let lineColor = "#2ca02c"; // Hudson Green
+            if (activeMission.line === "Harlem") lineColor = "#1f77b4";
+            if (activeMission.line === "BeeLine") lineColor = "#d62728";
+
             textEl.innerHTML = `
-                <span class="active-mission-label">${activeMission.id}</span>
-                <p style="margin: 5px 0; font-weight: bold;">${activeMission.text}</p>
-                <span style="font-size: 0.85em; color: gray;">Target Query: Origin = ${activeMission.station} | Depart After: ${activeMission.targetTime} (${activeMission.line === 'BeeLine' ? 'Bee-Line Bus' : activeMission.line + ' Line'})</span>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span class="active-mission-label" style="background:#0F1E36; color:#fff; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:0.85em;">${activeMission.id}</span>
+                    <span style="background:${lineColor}; color:#fff; padding:3px 8px; border-radius:12px; font-weight:bold; font-size:0.8em;">${activeMission.line === 'BeeLine' ? '🚌 Bee-Line Bus' : '🚆 ' + activeMission.line + ' Line'}</span>
+                </div>
+                
+                <p style="margin: 6px 0 10px 0; font-size: 1.05em; font-weight: bold; color: #2c3e50; line-height: 1.3;">${activeMission.text}</p>
+                
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+                    <div style="background:#eef2f7; border-left:4px solid ${lineColor}; padding:6px 10px; border-radius:4px; flex:1; min-width:120px;">
+                        <div style="font-size:0.75em; text-transform:uppercase; color:#666; font-weight:bold;">1. Start Station</div>
+                        <div style="font-size:1em; font-weight:bold; color:#0F1E36;">📍 ${activeMission.station}</div>
+                    </div>
+                    <div style="background:#fff8e7; border-left:4px solid #f2911b; padding:6px 10px; border-radius:4px; flex:1; min-width:120px;">
+                        <div style="font-size:0.75em; text-transform:uppercase; color:#666; font-weight:bold;">2. Depart Threshold</div>
+                        <div style="font-size:1em; font-weight:bold; color:#d97706;">⏰ After ${activeMission.targetTime}</div>
+                    </div>
+                </div>
             `;
 
             if (activeMission.line !== currentLine) {
                 switchLine(activeMission.line);
             }
 
-            document.getElementById("origin-select").value = "";
+            document.getElementById("origin-select").value = activeMission.station;
+            populateTimeDropdown(activeMission.station);
             document.getElementById("time-select").value = "";
-            document.getElementById("time-select").disabled = true;
+            document.getElementById("time-select").disabled = false;
             document.getElementById("validate-btn").disabled = true;
             document.getElementById("success-box").style.display = "none";
+            syncMapVehicleToken(activeMission.station);
             
             const activeNode = document.querySelector(".active-node");
             if (activeNode) activeNode.classList.remove("active-node");
@@ -1145,6 +1169,7 @@
                 if (targetRow && !targetRow.classList.contains("active-row")) {
                     moveSleeve(targetRow, selectedStation);
                 }
+                syncMapVehicleToken(selectedStation);
             }
 
             const validateBtn = document.getElementById("validate-btn");
@@ -1192,7 +1217,15 @@
                 logCurrentSession(true);
             } else {
                 messageEl.style.color = "var(--accent-crimson)";
-                messageEl.innerHTML = `⚠️ Ticket Invalid. Double check the destination station row or departure timing threshold.`;
+                let hint = "";
+                if (!isCorrectStation && !isCorrectTime) {
+                    hint = `💡 <strong>Hint:</strong> Check your starting station (target: <strong>${activeMission.station}</strong>) and departure threshold (target: <strong>After ${activeMission.targetTime}</strong>).`;
+                } else if (!isCorrectStation) {
+                    hint = `💡 <strong>Station Hint:</strong> You selected <strong>${selectedStation}</strong>, but the mission requires departing from <strong>${activeMission.station}</strong>.`;
+                } else {
+                    hint = `💡 <strong>Timing Hint:</strong> Station is correct! Now select the time column for departure <strong>After ${activeMission.targetTime}</strong>.`;
+                }
+                messageEl.innerHTML = `⚠️ <strong>Ticket Not Confirmed Yet</strong><br>${hint}`;
                 playWhistle(150, 0.4);
             }
         }
@@ -1795,38 +1828,60 @@
     
         // --- Interactive Map Token Coordinate Sync ---
         const mapStationCoords = {
-            'Yonkers':      { top: '75%', left: '25%' },
-            'Hastings':     { top: '58%', left: '26%' },
-            'Dobbs Ferry':  { top: '52%', left: '27%' },
-            'Irvington':    { top: '45%', left: '28%' },
-            'Tarrytown':    { top: '32%', left: '30%' },
-            'Peekskill':    { top: '20%', left: '32%' },
-            'White Plains': { top: '40%', left: '55%' },
-            'Scarsdale':    { top: '50%', left: '52%' },
-            'Mt. Vernon':   { top: '68%', left: '48%' },
-            'Mt. Kisco':    { top: '25%', left: '60%' }
+            'Yonkers':           { top: '75%', left: '25%' },
+            'Hastings':          { top: '58%', left: '26%' },
+            'Dobbs Ferry':       { top: '52%', left: '27%' },
+            'Irvington':         { top: '45%', left: '28%' },
+            'Tarrytown':         { top: '32%', left: '30%' },
+            'Peekskill':         { top: '20%', left: '32%' },
+            'Mt. Vernon':        { top: '68%', left: '48%' },
+            'Scarsdale':         { top: '50%', left: '52%' },
+            'White Plains':      { top: '40%', left: '55%' },
+            'Mt. Kisco':         { top: '25%', left: '60%' },
+            'Dobbs Ferry Bus':   { top: '52%', left: '27%' },
+            'Irvington Bus':     { top: '45%', left: '28%' },
+            'White Plains Hub':  { top: '40%', left: '55%' },
+            'Library':           { top: '44%', left: '46%' },
+            'Movie Theater':     { top: '38%', left: '48%' }
         };
 
         function selectStationPin(stationName) {
-            document.getElementById('origin-select').value = stationName;
+            const originDropdown = document.getElementById('origin-select');
+            if (originDropdown) {
+                originDropdown.value = stationName;
+                populateTimeDropdown(stationName);
+            }
             updateQuery();
             syncMapVehicleToken(stationName);
+            playWhistle(523, 0.1);
         }
 
         function syncMapVehicleToken(stationName) {
             const token = document.getElementById('active-vehicle-token');
-            if (token && mapStationCoords[stationName]) {
-                token.style.top = mapStationCoords[stationName].top;
-                token.style.left = mapStationCoords[stationName].left;
-            }
-            if (token) {
-                if (currentLine === 'BeeLine') {
-                    token.src = 'wtc_bus_red.png';
-                } else if (currentLine === 'Harlem') {
-                    token.src = 'wtc_train_blue.png';
-                } else {
-                    token.src = 'wtc_train_green.png';
+            if (!token || !stationName) return;
+
+            let coords = mapStationCoords[stationName];
+            if (!coords) {
+                for (let key in mapStationCoords) {
+                    if (stationName.includes(key) || key.includes(stationName)) {
+                        coords = mapStationCoords[key];
+                        break;
+                    }
                 }
+            }
+
+            if (coords) {
+                token.style.top = coords.top;
+                token.style.left = coords.left;
+                token.style.display = 'block';
+            }
+
+            if (currentLine === 'BeeLine') {
+                token.src = 'gallery/wtc_bus_red.png';
+            } else if (currentLine === 'Harlem') {
+                token.src = 'gallery/wtc_train_blue.png';
+            } else {
+                token.src = 'gallery/wtc_train_green.png';
             }
         }
 
