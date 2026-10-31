@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Westchester Transit Connection - Prototyping Portal v12</title>
+    <title>Westchester Transit Connection - Prototyping Portal v13</title>
     <!-- Progressive Web App Metadata -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#008080">
@@ -926,16 +926,16 @@
         };
 
         const missions = [
-            { id: "WTC-MIS-001", line: "Hudson", station: "Irvington", targetTime: "12:00 PM", text: "Take the afternoon train from Irvington station. Find the next departure after 12:00 PM.", timeColVal: "col-2", displayTime: "12:30 PM" },
-            { id: "WTC-MIS-002", line: "Hudson", station: "Yonkers", targetTime: "2:00 PM", text: "You have a late lunch planned. Depart Yonkers using the next train after 2:00 PM.", timeColVal: "col-3", displayTime: "3:15 PM" },
-            { id: "WTC-MIS-003", line: "Hudson", station: "Dobbs Ferry", targetTime: "8:00 AM", text: "Depart Dobbs Ferry on the next morning train after 8:00 AM.", timeColVal: "col-1", displayTime: "8:45 AM" },
-            { id: "WTC-MIS-004", line: "Hudson", station: "Tarrytown", targetTime: "3:00 PM", text: "Head home from Tarrytown. Find the next train departure after 3:00 PM.", timeColVal: "col-3", displayTime: "4:15 PM" },
-            { id: "WTC-MIS-005", line: "Harlem", station: "White Plains", targetTime: "8:00 AM", text: "You are starting your day in White Plains. Catch the first morning train after 8:00 AM.", timeColVal: "col-1", displayTime: "8:40 AM" },
-            { id: "WTC-MIS-006", line: "Harlem", station: "Scarsdale", targetTime: "11:30 AM", text: "Depart Scarsdale for a midday trip. Locate the next departure after 11:30 AM.", timeColVal: "col-2", displayTime: "11:55 AM" },
-            { id: "WTC-MIS-007", line: "Harlem", station: "Mt. Kisco", targetTime: "3:00 PM", text: "Head south from Mt. Kisco in the afternoon. Locate the next train after 3:00 PM.", timeColVal: "col-3", displayTime: "4:05 PM" },
-            { id: "WTC-MIS-008", line: "BeeLine", station: "Irvington Bus", targetTime: "11:30 AM", text: "Take the midday Bee-Line Bus Route 6 from Irvington Station to the White Plains Hub.", timeColVal: "col-2", displayTime: "12:30 PM" },
-            { id: "WTC-MIS-009", line: "BeeLine", station: "Dobbs Ferry Bus", targetTime: "3:00 PM", text: "Hop on the afternoon bus from Dobbs Ferry to go to the Movie Theater.", timeColVal: "col-3", displayTime: "3:45 PM" },
-            { id: "WTC-MIS-010", line: "BeeLine", station: "White Plains Hub", targetTime: "8:00 AM", text: "Take the morning connection from the White Plains Hub to go to the Library.", timeColVal: "col-1", displayTime: "9:30 AM" }
+            { id: "WTC-MIS-001", line: "Hudson", station: "Irvington", destination: "Yonkers", targetTime: "12:00 PM", text: "Take the afternoon train from Irvington station to Yonkers. Find the next departure after 12:00 PM.", timeColVal: "col-2", displayTime: "12:30 PM" },
+            { id: "WTC-MIS-002", line: "Hudson", station: "Yonkers", destination: "Peekskill", targetTime: "2:00 PM", text: "You have a late lunch planned in Peekskill. Depart Yonkers using the next train after 2:00 PM.", timeColVal: "col-3", displayTime: "3:15 PM" },
+            { id: "WTC-MIS-003", line: "Hudson", station: "Dobbs Ferry", destination: "Tarrytown", targetTime: "8:00 AM", text: "Depart Dobbs Ferry for Tarrytown on the next morning train after 8:00 AM.", timeColVal: "col-1", displayTime: "8:45 AM" },
+            { id: "WTC-MIS-004", line: "Hudson", station: "Tarrytown", destination: "Peekskill", targetTime: "3:00 PM", text: "Head home from Tarrytown to Peekskill. Find the next train departure after 3:00 PM.", timeColVal: "col-3", displayTime: "4:15 PM" },
+            { id: "WTC-MIS-005", line: "Harlem", station: "White Plains", destination: "Mt. Kisco", targetTime: "8:00 AM", text: "Starting in White Plains heading to Mt. Kisco. Catch the first morning train after 8:00 AM.", timeColVal: "col-1", displayTime: "8:40 AM" },
+            { id: "WTC-MIS-006", line: "Harlem", station: "Scarsdale", destination: "White Plains", targetTime: "11:30 AM", text: "Depart Scarsdale for White Plains. Locate the next departure after 11:30 AM.", timeColVal: "col-2", displayTime: "11:55 AM" },
+            { id: "WTC-MIS-007", line: "Harlem", station: "Mt. Kisco", destination: "Mt. Vernon", targetTime: "3:00 PM", text: "Head south from Mt. Kisco to Mt. Vernon. Locate the next train after 3:00 PM.", timeColVal: "col-3", displayTime: "4:05 PM" },
+            { id: "WTC-MIS-008", line: "BeeLine", station: "Irvington Bus", destination: "White Plains Hub", targetTime: "11:30 AM", text: "Take the midday Bee-Line Bus Route 6 from Irvington Station to the White Plains Hub.", timeColVal: "col-2", displayTime: "12:30 PM" },
+            { id: "WTC-MIS-009", line: "BeeLine", station: "Dobbs Ferry Bus", destination: "Movie Theater", targetTime: "3:00 PM", text: "Hop on the afternoon bus from Dobbs Ferry to go to the Movie Theater.", timeColVal: "col-3", displayTime: "3:45 PM" },
+            { id: "WTC-MIS-010", line: "BeeLine", station: "White Plains Hub", destination: "Library", targetTime: "8:00 AM", text: "Take the morning connection from the White Plains Hub to go to the Library.", timeColVal: "col-1", displayTime: "9:30 AM" }
         ];
 
         // Game State Variables
@@ -1194,10 +1194,18 @@
 
             if (isCorrectStation && isCorrectTime) {
                 messageEl.style.color = "var(--accent-teal)";
-                messageEl.innerHTML = `Successfully validated ticket! Janice departs ${activeMission.station} on the <strong>${activeMission.displayTime}</strong> transit run.`;
+                const destText = activeMission.destination ? ` and rides to <strong>${activeMission.destination}</strong>` : '';
+                messageEl.innerHTML = `🎟️ Ticket Confirmed! Janice departs <strong>${activeMission.station}</strong>${destText} on the <strong>${activeMission.displayTime}</strong> transit run.`;
                 updateScore(50);
                 playWhistle(440, 0.3);
                 setTimeout(() => playWhistle(554, 0.4), 120);
+
+                // Glide token from Origin to Destination on Map upon confirmation!
+                if (activeMission.destination) {
+                    setTimeout(() => {
+                        syncMapVehicleToken(activeMission.destination);
+                    }, 500);
+                }
 
                 // ---- TRIGGER VIDEO MODELING CLINICAL TIMELINE ----
                 if (currentLine === "BeeLine") {
