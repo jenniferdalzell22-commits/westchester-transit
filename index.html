@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Westchester Transit Connection - Prototyping Portal v17</title>
+    <title>Westchester Transit Connection - Prototyping Portal v18</title>
     <!-- Progressive Web App Metadata -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#008080">
@@ -1955,27 +1955,23 @@
                     img.src = 'map_with_stations_copy.jpg';
                 }
             } else if (type === 'token') {
-                // If bus_front_red failed, try wtc_bus_red.png
-                if (img.src.includes('wtc_bus_red.png')) {
+                if (img.src.includes('wtc_bus_front_red.png')) {
                     img.src = 'gallery/wtc_bus_red.png';
-                } else if (img.src.includes('gallery/')) {
-                    // Try root path without gallery/
-                    const filename = img.src.split('gallery/')[1];
-                    img.src = filename;
-                } else {
-                    // SVG Data-URI badge fallback so element NEVER disappears
-                    let color = '%232ca02c'; // Green
-                    let icon = '🚆';
-                    if (typeof currentLine !== 'undefined' && currentLine === 'BeeLine') { 
-                        color = '%23d62728'; // Red
-                        icon = '🚌'; 
-                    } else if (typeof currentLine !== 'undefined' && currentLine === 'Harlem') { 
-                        color = '%231f77b4'; // Blue
-                        icon = '🚆'; 
-                    }
-                    img.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='28' fill='" + color + "' stroke='white' stroke-width='4'/><text x='32' y='44' font-size='32' text-anchor='middle'>" + icon + "</text></svg>";
-                    img.style.display = 'block';
+                    return;
                 }
+                // SVG Data-URI badge fallback so element NEVER disappears
+                let color = '%232ca02c'; // Green
+                let icon = '🚆';
+                if (typeof currentLine !== 'undefined' && currentLine === 'BeeLine') { 
+                    color = '%23d62728'; // Red
+                    icon = '🚌'; 
+                } else if (typeof currentLine !== 'undefined' && currentLine === 'Harlem') { 
+                    color = '%231f77b4'; // Blue
+                    icon = '🚆'; 
+                }
+                const svgString = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='28' fill='" + color + "' stroke='white' stroke-width='4'/><text x='32' y='44' font-size='32' text-anchor='middle'>" + icon + "</text></svg>";
+                img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
+                img.style.display = 'block';
             }
         }
 
@@ -2002,9 +1998,9 @@
             if (currentLine === 'BeeLine') {
                 tokenImg.src = 'gallery/wtc_bus_red.png';
             } else if (currentLine === 'Harlem') {
-                tokenImg.src = '/gallery/wtc_train_blue.png';
+                tokenImg.src = 'gallery/wtc_train_blue.png';
             } else {
-                tokenImg.src = '/gallery/wtc_train_green.png';
+                tokenImg.src = 'gallery/wtc_train_green.png';
             }
             tokenImg.style.display = 'block';
         }
