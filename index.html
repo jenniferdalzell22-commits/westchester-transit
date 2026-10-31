@@ -2046,7 +2046,26 @@ transform:translate(-50%,-50%);
             if (currentLine === 'BeeLine') {
                 tokenImg.src = 'gallery/wtc_bus_red.png';
             } else if (currentLine === 'Harlem') {
-                tokenImg.src = 'gallery/wtc_train_blue.png';
+                tokenImg.src =
+"data:image/svg+xml;charset=UTF-8," +
+encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg"
+width="64"
+height="64">
+<circle
+cx="32"
+cy="32"
+r="28"
+fill="#1f77b4"
+stroke="white"
+stroke-width="3"/>
+<text
+x="32"
+y="42"
+font-size="24"
+text-anchor="middle">🚆</text>
+</svg>
+`);
             } else {
                 tokenImg.src = 'gallery/wtc_train_green.png';
             }
