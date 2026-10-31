@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Westchester Transit Connection - Prototyping Portal v14</title>
+    <title>Westchester Transit Connection - Prototyping Portal v16</title>
     <!-- Progressive Web App Metadata -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#008080">
@@ -626,12 +626,22 @@
 </head>
 <body>
 
+    <!-- Floating Map Jump Toast Notification -->
+    <div id="map-toast" onclick="scrollToMap()" style="display:none; opacity:0; position:fixed; top:20px; right:20px; z-index:9999; background: #0F1E36; color: white; padding: 12px 22px; border-radius: 30px; border: 2px solid #A3E4D7; box-shadow: 0 8px 24px rgba(0,0,0,0.35); font-weight: bold; cursor: pointer; transition: opacity 0.3s ease, transform 0.3s ease;">
+        <span id="toast-text">📍 Token moved on the map!</span>
+        <span style="font-size:0.8em; margin-left:10px; color:#A3E4D7; text-decoration:underline;">(Tap to view map 🗺️)</span>
+    </div>
+
+
     <header>
         <div>
             <h1 style="margin: 0; font-size: 1.6em;">Westchester Transit Connection</h1>
             <span style="font-size: 0.9em; opacity: 0.85;">PWA Adaptive Training Suite</span>
         </div>
-        <div style="display: flex; gap: 15px; align-items: center;">
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <button onclick="openNameSetupModal()" style="background: rgba(255,255,255,0.25); color: white; border: 1px solid rgba(255,255,255,0.5); padding: 6px 14px; border-radius: 20px; font-size: 0.85em; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">
+                <span>⚙️</span> <span id="hud-names-btn-text">Janice & Angela</span>
+            </button>
             <div class="hud-badge" id="conductor-badge">Conductor: Calm</div>
             <div class="hud-points" id="points-display">
                 <span>🎒 Points:</span>
@@ -642,7 +652,7 @@
 
     <div class="app-container">
 <!-- Interactive Westchester Route Map Section -->
-            <div class="card" style="grid-column: 1 / -1;">
+            <div id="map-card-section" class="card" style="grid-column: 1 / -1;">
                 <h2>🗺️ Interactive Westchester Route Map & Live Token Tracker</h2>
                 <p style="font-size:0.9em; color:gray; margin-top:-5px;">Select a station or click a pin below to view the location on the Metro-North & Bee-Line network.</p>
                 <div class="map-wrapper" style="position: relative; width: 100%; max-width: 1100px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 2px solid var(--accent-slate);">
@@ -667,8 +677,11 @@
                     <div class="station-pin" style="position:absolute; top:44%; left:46%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Library')"><span class="pin-label" style="background:#d62728; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Library</span></div>
                     <div class="station-pin" style="position:absolute; top:38%; left:48%; transform:translate(-50%,-50%); cursor:pointer;" onclick="selectStationPin('Movie Theater')"><span class="pin-label" style="background:#d62728; color:white; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.3);">Movie Theater</span></div>
 
-                    <!-- Active Moving Vehicle Token -->
-                    <img src="gallery/wtc_train_green.png" id="active-vehicle-token" alt="Train Token" onerror="handleImageError(this, 'token')" style="position:absolute; top:45%; left:28%; width:54px; height:54px; transform:translate(-50%,-50%); transition: top 0.6s cubic-bezier(0.25, 1, 0.5, 1), left 0.6s cubic-bezier(0.25, 1, 0.5, 1); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); z-index:100;">
+                    <!-- Active Moving Vehicle Token Container (Fail-Safe Dual Layer) -->
+                    <div id="token-container" style="position:absolute; top:45%; left:28%; transform:translate(-50%,-50%); transition: top 0.8s cubic-bezier(0.25, 1, 0.5, 1), left 0.8s cubic-bezier(0.25, 1, 0.5, 1); z-index:100; pointer-events:none;">
+                        <img src="gallery/wtc_train_green.png" id="active-vehicle-token" alt="Vehicle Token" onerror="handleImageError(this, 'token')" style="width:56px; height:56px; display:block; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));">
+                        <div id="fallback-vector-token" style="display:none; align-items:center; justify-content:center; width:48px; height:48px; border-radius:50%; background:#2ca02c; color:white; font-size:24px; font-weight:bold; border:3px solid white; box-shadow:0 4px 12px rgba(0,0,0,0.6); text-align:center;">🚆</div>
+                    </div>
                 </div>
             </div>
 
@@ -684,6 +697,7 @@
                     <p style="color: gray; margin: 0;">Click below to draw a transit scenario...</p>
                 </div>
                 <button onclick="drawMission()">Draw Travel Mission Card</button>
+                <p style="font-size:0.85em; color:var(--accent-teal); font-weight:bold; margin-top:8px; text-align:center;">📍 Map Tip: Token automatically glides to your origin station on the map above!</p>
             </div>
 
             <div class="card">
@@ -703,6 +717,7 @@
                 </select>
 
                 <button id="validate-btn" onclick="validateTicket()" disabled>Validate Ticket & Ride</button>
+                <p style="font-size:0.85em; color:var(--accent-teal); font-weight:bold; margin-top:8px; text-align:center;">🎟️ Map Tip: Validating ticket rides your token to your destination on the map!</p>
 
                 <div class="validation-box" id="success-box">
                     <strong style="color: var(--accent-teal); display:block; margin-bottom:5px;">🎟️ Ticket Confirmed!</strong>
@@ -768,7 +783,7 @@
             
             <div class="card">
                 <h2>Coping Tool Cabinet & Badge Showcase</h2>
-                <p style="font-size: 0.9em; color: gray; margin-top:-5px;">Accumulate travel points and practice coping strategies to unlock Janice's badges!</p>
+                <p style="font-size: 0.9em; color: gray; margin-top:-5px;">Accumulate travel points and practice coping strategies to unlock <span class="traveler-name-span">Janice</span>'s badges!</p>
                 <div class="badge-cabinet">
                     <div class="badge-item" id="badge-somatic">
                         <span class="badge-icon">🧘</span>
@@ -805,7 +820,7 @@
             <!-- Live Clinical Analytics Dashboard -->
             <div class="card">
                 <h2>4. Session Progress & Behavioral Dashboard</h2>
-                <p style="font-size: 0.9em; color: gray; margin-top:-5px;">Real-time quantitative telemetry generated directly from Janice's offline browser database.</p>
+                <p style="font-size: 0.9em; color: gray; margin-top:-5px;">Real-time quantitative telemetry generated directly from <span class="traveler-name-span">Janice</span>'s offline browser database.</p>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 15px; margin-top: 15px;">
                     <div style="border: 1px solid var(--accent-slate); border-radius: 8px; padding: 12px; text-align: center;">
@@ -944,6 +959,47 @@
         let currentLine = "Hudson";
         let score = 100;
         let activeMission = null;
+        let travelerName = localStorage.getItem('wtc_traveler_name') || 'Janice';
+        let companionName = localStorage.getItem('wtc_companion_name') || 'Angela';
+
+        function openNameSetupModal() {
+            document.getElementById('traveler-name-input').value = travelerName;
+            document.getElementById('companion-name-input').value = companionName;
+            document.getElementById('name-setup-modal').classList.add('active');
+        }
+
+        function saveSessionNames() {
+            const tInput = document.getElementById('traveler-name-input').value.trim();
+            const cInput = document.getElementById('companion-name-input').value.trim();
+            if (tInput) travelerName = tInput;
+            if (cInput) companionName = cInput;
+            
+            localStorage.setItem('wtc_traveler_name', travelerName);
+            localStorage.setItem('wtc_companion_name', companionName);
+            
+            document.getElementById('name-setup-modal').classList.remove('active');
+            applySessionNames();
+        }
+
+        function applySessionNames() {
+            const btnText = document.getElementById('hud-names-btn-text');
+            if (btnText) btnText.textContent = `${travelerName} & ${companionName}`;
+
+            const conductorTitle = document.getElementById('conductor-panel-header');
+            if (conductorTitle) conductorTitle.innerHTML = `3. <span class="companion-name-span">${companionName}</span>'s Conductor Panel`;
+
+            document.querySelectorAll('.traveler-name-span').forEach(el => el.textContent = travelerName);
+            document.querySelectorAll('.companion-name-span').forEach(el => el.textContent = companionName);
+        }
+
+        // Auto-check on window load
+        window.addEventListener('DOMContentLoaded', () => {
+            applySessionNames();
+            if (!localStorage.getItem('wtc_traveler_name')) {
+                openNameSetupModal();
+            }
+        });
+
         let selectedStation = "";
         let selectedTime = "";
         let audioContext = null;
@@ -1085,6 +1141,29 @@
         }
 
         // Draw Travel Mission Card
+        
+        function showMapToast(text) {
+            const toast = document.getElementById('map-toast');
+            const toastText = document.getElementById('toast-text');
+            if (toast && toastText) {
+                toastText.innerHTML = text;
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.opacity = '1'; }, 10);
+                if (window.toastTimer) clearTimeout(window.toastTimer);
+                window.toastTimer = setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => { toast.style.display = 'none'; }, 300);
+                }, 4500);
+            }
+        }
+
+        function scrollToMap() {
+            const mapCard = document.getElementById('map-card-section');
+            if (mapCard) {
+                mapCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
         function drawMission() {
             activeMission = missions[Math.floor(Math.random() * missions.length)];
             const textEl = document.getElementById("mission-text");
@@ -1124,6 +1203,7 @@
             document.getElementById("validate-btn").disabled = true;
             document.getElementById("success-box").style.display = "none";
             syncMapVehicleToken(activeMission.station);
+            showMapToast("📍 Mission Drawn! Token glided to <strong>" + activeMission.station + "</strong> on the map.");
             
             const activeNode = document.querySelector(".active-node");
             if (activeNode) activeNode.classList.remove("active-node");
@@ -1197,7 +1277,7 @@
             if (isCorrectStation && isCorrectTime) {
                 messageEl.style.color = "var(--accent-teal)";
                 const destText = activeMission.destination ? ` and rides to <strong>${activeMission.destination}</strong>` : '';
-                messageEl.innerHTML = `🎟️ Ticket Confirmed! Janice departs <strong>${activeMission.station}</strong>${destText} on the <strong>${activeMission.displayTime}</strong> transit run.`;
+                messageEl.innerHTML = `🎟️ Ticket Confirmed! ${travelerName} departs <strong>${activeMission.station}</strong>${destText} on the <strong>${activeMission.displayTime}</strong> transit run.`;
                 updateScore(50);
                 playWhistle(440, 0.3);
                 setTimeout(() => playWhistle(554, 0.4), 120);
@@ -1206,6 +1286,7 @@
                 if (activeMission.destination) {
                     setTimeout(() => {
                         syncMapVehicleToken(activeMission.destination);
+                        showMapToast("🚆 Ticket Validated! Token riding to <strong>" + activeMission.destination + "</strong>!");
                     }, 500);
                 }
 
@@ -1292,7 +1373,7 @@
                 msgBox.style.backgroundColor = "#f3f0ff";
                 msgBox.innerHTML = `
                     <strong style="color: #5f3dc4;">🚐 Plan B Activated: Westchester ParaTransit Requested!</strong>
-                    <p style="margin: 5px 0 0 0; font-size: 0.9em;">ParaTransit pass validated & ride requested with Angela. Safe door-to-door transit confirmed! +100 travel points awarded!</p>
+                    <p style="margin: 5px 0 0 0; font-size: 0.9em;">ParaTransit pass validated & ride requested with ${companionName}. Safe door-to-door transit confirmed! +100 travel points awarded!</p>
                 `;
             }
             updateScore(100);
@@ -1879,26 +1960,23 @@
             } else if (type === 'token') {
                 if (img.src.includes('gallery/')) {
                     const filename = img.src.split('gallery/')[1];
-                    img.src = filename;
+                    img.src = filename; // Try root path
                 } else {
-                    // Fail-safe SVG token badge rendering if PNG file is missing or blocked
-                    let color = '%232ca02c'; // Hudson Green
-                    let icon = '🚆';
-                    if (typeof currentLine !== 'undefined' && currentLine === 'BeeLine') { 
-                        color = '%23d62728'; // BeeLine Red
-                        icon = '🚌'; 
-                    } else if (typeof currentLine !== 'undefined' && currentLine === 'Harlem') { 
-                        color = '%231f77b4'; // Harlem Blue
-                        icon = '🚆'; 
+                    // Fail-safe: hide broken image and reveal vector token badge
+                    img.style.display = 'none';
+                    const fallbackVector = document.getElementById('fallback-vector-token');
+                    if (fallbackVector) {
+                        fallbackVector.style.display = 'flex';
                     }
-                    img.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="${color}" stroke="white" stroke-width="4"/><text x="32" y="44" font-size="32" text-anchor="middle">${icon}</text></svg>`;
                 }
             }
         }
 
-function syncMapVehicleToken(stationName) {
-            const token = document.getElementById('active-vehicle-token');
-            if (!token || !stationName) return;
+        function syncMapVehicleToken(stationName) {
+            const container = document.getElementById('token-container');
+            const tokenImg = document.getElementById('active-vehicle-token');
+            const fallbackVector = document.getElementById('fallback-vector-token');
+            if (!stationName) return;
 
             let coords = mapStationCoords[stationName];
             if (!coords) {
@@ -1911,20 +1989,74 @@ function syncMapVehicleToken(stationName) {
             }
 
             if (coords) {
-                token.style.top = coords.top;
-                token.style.left = coords.left;
-                token.style.display = 'block';
+                if (container) {
+                    container.style.top = coords.top;
+                    container.style.left = coords.left;
+                    container.style.display = 'block';
+                } else if (tokenImg) {
+                    tokenImg.style.top = coords.top;
+                    tokenImg.style.left = coords.left;
+                    tokenImg.style.display = 'block';
+                }
             }
 
+            // Update fallback vector styling & emoji
+            let bgCol = '#2ca02c';
+            let iconEmoji = '🚆';
             if (currentLine === 'BeeLine') {
-                token.src = 'gallery/wtc_bus_red.png';
+                bgCol = '#d62728';
+                iconEmoji = '🚌';
             } else if (currentLine === 'Harlem') {
-                token.src = 'gallery/wtc_train_blue.png';
-            } else {
-                token.src = 'gallery/wtc_train_green.png';
+                bgCol = '#1f77b4';
+                iconEmoji = '🚆';
+            }
+
+            if (fallbackVector) {
+                fallbackVector.style.background = bgCol;
+                fallbackVector.innerHTML = iconEmoji;
+            }
+
+            if (tokenImg) {
+                tokenImg.style.display = 'block';
+                if (currentLine === 'BeeLine') {
+                    tokenImg.src = 'gallery/wtc_bus_front_red.png';
+                } else if (currentLine === 'Harlem') {
+                    tokenImg.src = 'gallery/wtc_train_blue.png';
+                } else {
+                    tokenImg.src = 'gallery/wtc_train_green.png';
+                }
             }
         }
-
     </script>
+
+    <!-- Profile & Session Name Setup Modal -->
+    <div id="name-setup-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 460px; text-align: left; padding: 25px; border-radius: 12px; background: white; box-shadow: 0 8px 24px rgba(0,0,0,0.25);">
+            <h2 style="margin-top: 0; color: var(--primary-navy); border-bottom: 2px solid var(--accent-teal); padding-bottom: 8px; font-size: 1.3em; display: flex; align-items: center; gap: 8px;">
+                👤 Customize Session Names
+            </h2>
+            <p style="font-size: 0.9em; color: #555; margin-bottom: 20px; line-height: 1.4;">
+                Welcome to Westchester Transit Connection! Personalize the traveler and staff companion names for this training session:
+            </p>
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px; color: var(--primary-navy); font-size: 0.95em;">
+                    🚆 Traveler / Learner Name:
+                </label>
+                <input type="text" id="traveler-name-input" value="Janice" placeholder="e.g. Jennifer, Janice, Sam" style="width: 100%; padding: 10px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 15px; box-sizing: border-box;">
+            </div>
+            <div style="margin-bottom: 22px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px; color: var(--primary-navy); font-size: 0.95em;">
+                    👮 Companion / Staff Name:
+                </label>
+                <input type="text" id="companion-name-input" value="Angela" placeholder="e.g. Bob, Angela, Sarah" style="width: 100%; padding: 10px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 15px; box-sizing: border-box;">
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button onclick="saveSessionNames()" style="background: var(--accent-teal); color: white; border: none; padding: 10px 22px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">
+                    Save & Start Session 🚀
+                </button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
