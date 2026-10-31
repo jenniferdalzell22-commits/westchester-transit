@@ -1120,8 +1120,8 @@ transform:translate(-50%,-50%);
             });
         }
 
-        function switchLine(lineName) {
-            currentLine = lineName;
+        function switchLine(currentLine) {
+            currentLine = currentLine;
             
             const tabHudson = document.getElementById("tab-hudson");
             const tabHarlem = document.getElementById("tab-harlem");
@@ -1132,11 +1132,11 @@ transform:translate(-50%,-50%);
             tabHarlem.className = "tab-btn";
             tabBeeline.className = "tab-btn";
 
-            if (lineName === "Hudson") {
+            if (currentLine === "Hudson") {
                 tabHudson.className = "tab-btn active-hudson";
-            } else if (lineName === "Harlem") {
+            } else if (currentLine === "Harlem") {
                 tabHarlem.className = "tab-btn active-harlem";
-            } else if (lineName === "BeeLine") {
+            } else if (currentLine === "BeeLine") {
                 tabBeeline.className = "tab-btn active-beeline";
             }
 
